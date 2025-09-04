@@ -27,6 +27,7 @@ class OnboardingState: ObservableObject {
     @Published var answers: [UUID: UUID] = [:]
     @Published var textAnswers: [UUID: String] = [:]
     @Published var showReviews = false
+    @Published var showPersonalizationLoading = false
     
     let questions = [
         OnboardingQuestion(
@@ -193,11 +194,11 @@ class OnboardingState: ObservableObject {
     ]
     
     var isComplete: Bool {
-        return currentQuestionIndex >= questions.count && showReviews
+        return showPersonalizationLoading
     }
     
     var shouldShowReviews: Bool {
-        return currentQuestionIndex >= questions.count && !showReviews
+        return currentQuestionIndex >= questions.count && !showReviews && !showPersonalizationLoading
     }
     
     func selectAnswer(questionId: UUID, optionId: UUID) {
@@ -214,6 +215,18 @@ class OnboardingState: ObservableObject {
         } else if !showReviews {
             showReviews = true
         }
+    }
+    
+    func startPersonalization() {
+        showPersonalizationLoading = true
+    }
+    
+    func getUserName() -> String {
+        if let nameQuestion = questions.first(where: { $0.title.contains("name") }),
+           let name = textAnswers[nameQuestion.id], !name.isEmpty {
+            return name
+        }
+        return "friend"
     }
 }
 
@@ -239,7 +252,7 @@ struct OnboardingFlowView: View {
                 .ignoresSafeArea()
                 
                 if onboardingState.isComplete {
-                    CompletionView(onFinish: onFinish)
+                    PersonalizationLoadingView(onboardingState: onboardingState, onFinish: onFinish)
                 } else if onboardingState.shouldShowReviews {
                     ReviewsView(onboardingState: onboardingState)
                 } else {
@@ -708,19 +721,19 @@ struct ReviewsView: View {
                     .opacity(hasAnimated ? 1 : 0)
                     .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(1.5), value: hasAnimated)
                 } else {
-                    // Continue button (appears after review is requested)
+                    // Get Started button (appears after review is requested)
                     Button(action: {
                         withAnimation(.easeInOut(duration: 0.5)) {
-                            onboardingState.nextQuestion()
+                            onboardingState.startPersonalization()
                         }
                     }) {
                         HStack(spacing: 12) {
-                            Text("Continue")
+                            Text("Get Started")
                                 .font(.body)
                                 .fontWeight(.semibold)
                                 .foregroundColor(Color(red: 0.1, green: 0.05, blue: 0.2))
                             
-                            Image(systemName: "arrow.right")
+                            Image(systemName: "sparkles")
                                 .foregroundColor(Color(red: 0.1, green: 0.05, blue: 0.2))
                                 .font(.system(size: 14, weight: .bold))
                         }
@@ -746,7 +759,7 @@ struct ReviewsView: View {
                 if !hasRequestedReview {
                     Button(action: {
                         withAnimation(.easeInOut(duration: 0.5)) {
-                            onboardingState.nextQuestion()
+                            onboardingState.startPersonalization()
                         }
                     }) {
                         Text("Skip")
@@ -816,6 +829,199 @@ struct ReviewCard: View {
                 .fill(Color.white.opacity(0.92))
                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 3)
         )
+    }
+}
+
+// MARK: - Personalization Loading View
+struct PersonalizationLoadingView: View {
+    @ObservedObject var onboardingState: OnboardingState
+    let onFinish: () -> Void
+    
+    @State private var currentMessageIndex = 0
+    @State private var showMessage = false
+    @State private var progressValue: CGFloat = 0
+    @State private var pulseAnimation = false
+    @State private var rotationAngle: Double = 0
+    @State private var showSparkles = false
+    
+    let messages: [String]
+    
+    init(onboardingState: OnboardingState, onFinish: @escaping () -> Void) {
+        self.onboardingState = onboardingState
+        self.onFinish = onFinish
+        
+        let userName = onboardingState.getUserName()
+        self.messages = [
+            "Welcome, \(userName)...",
+            "Analyzing your spiritual profile...",
+            "Understanding your unique journey...",
+            "Connecting with universal wisdom...",
+            "Aligning with your inner truth...",
+            "Personalizing your sacred space...",
+            "Calibrating guidance frequencies...",
+            "Your path is being illuminated..."
+        ]
+    }
+    
+    var body: some View {
+        ZStack {
+            // Animated gradient background
+            LinearGradient(
+                colors: [
+                    Color.purple.opacity(0.4 + progressValue * 0.2),
+                    Color.indigo.opacity(0.5 + progressValue * 0.2),
+                    Color.blue.opacity(0.4 + progressValue * 0.2)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            .animation(.easeInOut(duration: 1.5), value: progressValue)
+            
+            VStack(spacing: 40) {
+                Spacer()
+                
+                // Main animated icon
+                ZStack {
+                    // Outer pulsing ring
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 2
+                        )
+                        .frame(width: 150, height: 150)
+                        .scaleEffect(pulseAnimation ? 1.2 : 1.0)
+                        .opacity(pulseAnimation ? 0 : 0.8)
+                        .animation(
+                            Animation.easeOut(duration: 1.5)
+                                .repeatForever(autoreverses: false),
+                            value: pulseAnimation
+                        )
+                    
+                    // Middle rotating ring
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.5), Color.clear],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 3
+                        )
+                        .frame(width: 100, height: 100)
+                        .rotationEffect(Angle(degrees: rotationAngle))
+                        .animation(
+                            Animation.linear(duration: 8)
+                                .repeatForever(autoreverses: false),
+                            value: rotationAngle
+                        )
+                    
+                    // Center icon
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 50))
+                        .foregroundColor(.white)
+                        .scaleEffect(showSparkles ? 1.1 : 0.9)
+                        .animation(
+                            Animation.easeInOut(duration: 0.8)
+                                .repeatForever(autoreverses: true),
+                            value: showSparkles
+                        )
+                }
+                
+                // Progress bar
+                VStack(spacing: 20) {
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 250, height: 8)
+                        
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.white, Color.white.opacity(0.8)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: 250 * progressValue, height: 8)
+                            .animation(.easeInOut(duration: 0.5), value: progressValue)
+                    }
+                    
+                    // Animated messages
+                    Text(currentMessageIndex < messages.count ? messages[currentMessageIndex] : "")
+                        .font(.body)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .opacity(showMessage ? 1 : 0)
+                        .animation(.easeIn(duration: 0.5), value: showMessage)
+                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                }
+                .padding(.horizontal, 40)
+                
+                Spacer()
+            }
+            
+            // Floating particles
+            ForEach(0..<12) { index in
+                Circle()
+                    .fill(Color.white.opacity(0.3))
+                    .frame(width: CGFloat.random(in: 4...8))
+                    .position(
+                        x: CGFloat.random(in: 50...350),
+                        y: showSparkles ? CGFloat.random(in: 100...700) : CGFloat.random(in: 100...700) + 50
+                    )
+                    .animation(
+                        Animation.easeInOut(duration: Double.random(in: 3...5))
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(index) * 0.2),
+                        value: showSparkles
+                    )
+            }
+        }
+        .onAppear {
+            startAnimations()
+        }
+    }
+    
+    private func startAnimations() {
+        pulseAnimation = true
+        rotationAngle = 360
+        showSparkles = true
+        
+        // Cycle through messages
+        Timer.scheduledTimer(withTimeInterval: 1.2, repeats: true) { timer in
+            withAnimation {
+                showMessage = false
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                if currentMessageIndex < messages.count - 1 {
+                    currentMessageIndex += 1
+                    progressValue = CGFloat(currentMessageIndex + 1) / CGFloat(messages.count)
+                    withAnimation {
+                        showMessage = true
+                    }
+                } else {
+                    timer.invalidate()
+                    // Trigger paywall after loading completes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        onFinish()
+                    }
+                }
+            }
+        }
+        
+        // Show first message
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            withAnimation {
+                showMessage = true
+            }
+        }
     }
 }
 
