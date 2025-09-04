@@ -15,6 +15,13 @@
 		EF4D8FFE2E690236000004B2 /* OrinTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D8FFC2E690236000004B2 /* OrinTests.swift */; };
 		EF4D90022E690238000004B2 /* OrinUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D8FFF2E690238000004B2 /* OrinUITests.swift */; };
 		EF4D90032E690238000004B2 /* OrinUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D90002E690238000004B2 /* OrinUITestsLaunchTests.swift */; };
+		EF4D90062E6903E1000004B2 /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = EF4D90052E6903E1000004B2 /* SuperwallKit */; };
+		EF4D90092E69043B000004B2 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = EF4D90082E69043B000004B2 /* FirebaseFunctions */; };
+		EF4D90122E690754000004B2 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D90112E690754000004B2 /* RootView.swift */; };
+		EF4D90152E6908C5000004B2 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D90142E6908C5000004B2 /* OnboardingFlowView.swift */; };
+		EF4D90172E690A40000004B2 /* Storekit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EF4D90162E690A40000004B2 /* Storekit.storekit */; };
+		EF4D901B2E69233F000004B2 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF4D901A2E69233F000004B2 /* GoogleService-Info.plist */; };
+		EF4D90202E692D10000004B2 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D901F2E692D10000004B2 /* CameraView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +54,11 @@
 		EF4D8FFC2E690236000004B2 /* OrinTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrinTests.swift; sourceTree = "<group>"; };
 		EF4D8FFF2E690238000004B2 /* OrinUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrinUITests.swift; sourceTree = "<group>"; };
 		EF4D90002E690238000004B2 /* OrinUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrinUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		EF4D90112E690754000004B2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		EF4D90142E6908C5000004B2 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		EF4D90162E690A40000004B2 /* Storekit.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Storekit.storekit; sourceTree = "<group>"; };
+		EF4D901A2E69233F000004B2 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EF4D901F2E692D10000004B2 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +66,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF4D90062E6903E1000004B2 /* SuperwallKit in Frameworks */,
+				EF4D90092E69043B000004B2 /* FirebaseFunctions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,6 +91,8 @@
 		EF4D8FB62E690195000004B2 = {
 			isa = PBXGroup;
 			children = (
+				EF4D901A2E69233F000004B2 /* GoogleService-Info.plist */,
+				EF4D90162E690A40000004B2 /* Storekit.storekit */,
 				EF4D8FF52E690232000004B2 /* Orin */,
 				EF4D8FFD2E690236000004B2 /* OrinTests */,
 				EF4D90012E690238000004B2 /* OrinUITests */,
@@ -97,6 +113,9 @@
 		EF4D8FF52E690232000004B2 /* Orin */ = {
 			isa = PBXGroup;
 			children = (
+				EF4D90132E6908B6000004B2 /* Onboarding */,
+				EF4D901C2E6929C3000004B2 /* Camera */,
+				EF4D90102E690688000004B2 /* Core */,
 				EF4D8FEF2E690232000004B2 /* Assets.xcassets */,
 				EF4D8FF02E690232000004B2 /* ContentView.swift */,
 				EF4D8FF12E690232000004B2 /* Orin.entitlements */,
@@ -124,6 +143,30 @@
 			path = OrinUITests;
 			sourceTree = "<group>";
 		};
+		EF4D90102E690688000004B2 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				EF4D90112E690754000004B2 /* RootView.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		EF4D90132E6908B6000004B2 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				EF4D90142E6908C5000004B2 /* OnboardingFlowView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		EF4D901C2E6929C3000004B2 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				EF4D901F2E692D10000004B2 /* CameraView.swift */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -141,6 +184,8 @@
 			);
 			name = Orin;
 			packageProductDependencies = (
+				EF4D90052E6903E1000004B2 /* SuperwallKit */,
+				EF4D90082E69043B000004B2 /* FirebaseFunctions */,
 			);
 			productName = Orin;
 			productReference = EF4D8FBF2E690195000004B2 /* Orin.app */;
@@ -218,6 +263,10 @@
 			);
 			mainGroup = EF4D8FB62E690195000004B2;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				EF4D90042E6903E1000004B2 /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
+				EF4D90072E69043B000004B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EF4D8FC02E690195000004B2 /* Products */;
 			projectDirPath = "";
@@ -236,6 +285,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF4D8FF72E690232000004B2 /* Assets.xcassets in Resources */,
+				EF4D90172E690A40000004B2 /* Storekit.storekit in Resources */,
+				EF4D901B2E69233F000004B2 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,9 +312,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF4D8FF82E690232000004B2 /* ContentView.swift in Sources */,
+				EF4D90202E692D10000004B2 /* CameraView.swift in Sources */,
 				EF4D8FF92E690232000004B2 /* Orin.xcdatamodeld in Sources */,
 				EF4D8FFA2E690232000004B2 /* OrinApp.swift in Sources */,
+				EF4D90152E6908C5000004B2 /* OnboardingFlowView.swift in Sources */,
 				EF4D8FFB2E690232000004B2 /* Persistence.swift in Sources */,
+				EF4D90122E690754000004B2 /* RootView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -428,6 +482,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to take photos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -468,6 +523,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to take photos";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -626,6 +682,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		EF4D90042E6903E1000004B2 /* XCRemoteSwiftPackageReference "Superwall-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/superwall/Superwall-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.7.0;
+			};
+		};
+		EF4D90072E69043B000004B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EF4D90052E6903E1000004B2 /* SuperwallKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EF4D90042E6903E1000004B2 /* XCRemoteSwiftPackageReference "Superwall-iOS" */;
+			productName = SuperwallKit;
+		};
+		EF4D90082E69043B000004B2 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EF4D90072E69043B000004B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		EF4D8FF22E690232000004B2 /* Orin.xcdatamodeld */ = {
