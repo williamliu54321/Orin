@@ -28,6 +28,7 @@ class OnboardingState: ObservableObject {
     @Published var textAnswers: [UUID: String] = [:]
     @Published var showReviews = false
     @Published var showPersonalizationLoading = false
+    @Published var showReadyScreen = false
     
     let questions = [
         OnboardingQuestion(
@@ -194,11 +195,15 @@ class OnboardingState: ObservableObject {
     ]
     
     var isComplete: Bool {
-        return showPersonalizationLoading
+        return showReadyScreen
     }
     
     var shouldShowReviews: Bool {
-        return currentQuestionIndex >= questions.count && !showReviews && !showPersonalizationLoading
+        return currentQuestionIndex >= questions.count && !showReviews && !showPersonalizationLoading && !showReadyScreen
+    }
+    
+    var shouldShowPersonalizationLoading: Bool {
+        return showPersonalizationLoading && !showReadyScreen
     }
     
     func selectAnswer(questionId: UUID, optionId: UUID) {
@@ -219,6 +224,10 @@ class OnboardingState: ObservableObject {
     
     func startPersonalization() {
         showPersonalizationLoading = true
+    }
+    
+    func showReadyToBegin() {
+        showReadyScreen = true
     }
     
     func getUserName() -> String {
@@ -252,6 +261,8 @@ struct OnboardingFlowView: View {
                 .ignoresSafeArea()
                 
                 if onboardingState.isComplete {
+                    ReadyToBeginView(onboardingState: onboardingState, onFinish: onFinish)
+                } else if onboardingState.shouldShowPersonalizationLoading {
                     PersonalizationLoadingView(onboardingState: onboardingState, onFinish: onFinish)
                 } else if onboardingState.shouldShowReviews {
                     ReviewsView(onboardingState: onboardingState)
@@ -1008,9 +1019,9 @@ struct PersonalizationLoadingView: View {
                     }
                 } else {
                     timer.invalidate()
-                    // Trigger paywall after loading completes
+                    // Show ready screen after loading completes
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        onFinish()
+                        onboardingState.showReadyToBegin()
                     }
                 }
             }
@@ -1021,6 +1032,106 @@ struct PersonalizationLoadingView: View {
             withAnimation {
                 showMessage = true
             }
+        }
+    }
+}
+
+// MARK: - Ready To Begin View
+struct ReadyToBeginView: View {
+    @ObservedObject var onboardingState: OnboardingState
+    let onFinish: () -> Void
+    @State private var hasAnimated = false
+    
+    var body: some View {
+        VStack(spacing: 30) {
+            Spacer()
+            
+            VStack(spacing: 24) {
+                Text("🌟")
+                    .font(.system(size: 60))
+                    .scaleEffect(hasAnimated ? 1.0 : 0.5)
+                    .opacity(hasAnimated ? 1 : 0)
+                    .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.2), value: hasAnimated)
+                
+                VStack(spacing: 16) {
+                    Text("Your Sacred Space is Ready")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 2)
+                        .opacity(hasAnimated ? 1 : 0)
+                        .offset(y: hasAnimated ? 0 : 20)
+                        .animation(.easeOut(duration: 0.8).delay(0.4), value: hasAnimated)
+                    
+                    Text("Welcome to your personalized journey, \(onboardingState.getUserName()). Everything has been tailored specifically for you.")
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                        .opacity(hasAnimated ? 1 : 0)
+                        .offset(y: hasAnimated ? 0 : 20)
+                        .animation(.easeOut(duration: 0.8).delay(0.6), value: hasAnimated)
+                }
+                .padding(.horizontal, 32)
+            }
+            
+            Spacer()
+            
+            VStack(spacing: 16) {
+                Button(action: {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        // Trigger the paywall
+                        onFinish()
+                    }
+                }) {
+                    HStack(spacing: 12) {
+                        Text("Begin Your Journey")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        Image(systemName: "arrow.right.circle.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 18))
+                    }
+                    .padding(.horizontal, 40)
+                    .padding(.vertical, 18)
+                    .background(
+                        RoundedRectangle(cornerRadius: 25)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.25),
+                                        Color.white.opacity(0.15)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.white.opacity(0.4), lineWidth: 1.5)
+                            )
+                    )
+                    .shadow(color: Color.white.opacity(0.2), radius: 10, x: 0, y: 0)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .scaleEffect(hasAnimated ? 1.0 : 0.8)
+                .opacity(hasAnimated ? 1 : 0)
+                .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(1.0), value: hasAnimated)
+                
+                Text("Unlock your full potential with premium guidance")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .opacity(hasAnimated ? 1 : 0)
+                    .animation(.easeOut(duration: 0.8).delay(1.2), value: hasAnimated)
+            }
+            .padding(.bottom, 60)
+        }
+        .onAppear {
+            hasAnimated = true
         }
     }
 }
