@@ -248,17 +248,9 @@ struct OnboardingFlowView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Gradient background
-                LinearGradient(
-                    colors: [
-                        Color.purple.opacity(0.3),
-                        Color.blue.opacity(0.4),
-                        Color.indigo.opacity(0.5)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                // Mystical background matching camera view
+                MysticalCameraBackground()
+                    .ignoresSafeArea()
                 
                 if onboardingState.isComplete {
                     ReadyToBeginView(onboardingState: onboardingState, onFinish: onFinish)
@@ -379,48 +371,21 @@ struct TextInputQuestionView: View {
             VStack {
                 Spacer()
                 
-                Button(action: {
-                    if !textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        isTextFieldFocused = false
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            onboardingState.nextQuestion()
+                MysticalButton(
+                    title: "Continue",
+                    icon: "arrow.right",
+                    isPrimary: !textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                    action: {
+                        if !textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            isTextFieldFocused = false
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                onboardingState.nextQuestion()
+                            }
                         }
                     }
-                }) {
-                    HStack(spacing: 12) {
-                        Text("Continue")
-                            .font(.body)
-                            .fontWeight(!textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .semibold : .medium)
-                            .foregroundColor(!textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color(red: 0.1, green: 0.05, blue: 0.2) : Color(red: 0.3, green: 0.25, blue: 0.35))
-                        
-                        Image(systemName: "arrow.right")
-                            .foregroundColor(!textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color(red: 0.1, green: 0.05, blue: 0.2) : Color(red: 0.3, green: 0.25, blue: 0.35))
-                            .font(.system(size: 14, weight: .bold))
-                    }
-                    .padding(.horizontal, 40)
-                    .padding(.vertical, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(
-                                !textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?
-                                Color.white.opacity(0.95) :
-                                Color.white.opacity(0.75)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(
-                                        !textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?
-                                        Color.white :
-                                        Color.white.opacity(0.5),
-                                        lineWidth: !textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 3 : 1
-                                    )
-                            )
-                    )
-                    .shadow(color: !textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.white.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 0)
-                }
-                .buttonStyle(PlainButtonStyle())
+                )
                 .disabled(textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .scaleEffect(!textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 1.03 : 1.0)
+                .scaleEffect(!textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 1.0 : 0.95)
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: textInput)
                 .padding(.bottom, 50)
             }
@@ -519,47 +484,20 @@ struct OnboardingQuestionView: View {
             VStack {
                 Spacer()
                 
-                Button(action: {
-                    if selectedOption != nil {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            onboardingState.nextQuestion()
+                MysticalButton(
+                    title: "Continue",
+                    icon: "arrow.right",
+                    isPrimary: selectedOption != nil,
+                    action: {
+                        if selectedOption != nil {
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                onboardingState.nextQuestion()
+                            }
                         }
                     }
-                }) {
-                    HStack(spacing: 12) {
-                        Text("Continue")
-                            .font(.body)
-                            .fontWeight(selectedOption != nil ? .semibold : .medium)
-                            .foregroundColor(selectedOption != nil ? Color(red: 0.1, green: 0.05, blue: 0.2) : Color(red: 0.3, green: 0.25, blue: 0.35))
-                        
-                        Image(systemName: "arrow.right")
-                            .foregroundColor(selectedOption != nil ? Color(red: 0.1, green: 0.05, blue: 0.2) : Color(red: 0.3, green: 0.25, blue: 0.35))
-                            .font(.system(size: 14, weight: .bold))
-                    }
-                    .padding(.horizontal, 40)
-                    .padding(.vertical, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(
-                                selectedOption != nil ?
-                                Color.white.opacity(0.95) :
-                                Color.white.opacity(0.75)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(
-                                        selectedOption != nil ?
-                                        Color.white :
-                                        Color.white.opacity(0.5),
-                                        lineWidth: selectedOption != nil ? 3 : 1
-                                    )
-                            )
-                    )
-                    .shadow(color: selectedOption != nil ? Color.white.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 0)
-                }
-                .buttonStyle(PlainButtonStyle())
+                )
                 .disabled(selectedOption == nil)
-                .scaleEffect(selectedOption != nil ? 1.03 : 1.0)
+                .scaleEffect(selectedOption != nil ? 1.0 : 0.95)
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedOption)
                 .padding(.bottom, 50)
             }
@@ -697,70 +635,34 @@ struct ReviewsView: View {
                 
                 if !hasRequestedReview {
                     // Leave a Review button
-                    Button(action: {
-                        // Show native iOS review popup
-                        if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                            SKStoreReviewController.requestReview(in: scene)
+                    MysticalButton(
+                        title: "Leave a Review",
+                        icon: "star.fill",
+                        isPrimary: true,
+                        action: {
+                            // Show native iOS review popup
+                            if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                                SKStoreReviewController.requestReview(in: scene)
+                            }
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                hasRequestedReview = true
+                            }
                         }
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                            hasRequestedReview = true
-                        }
-                    }) {
-                        HStack(spacing: 12) {
-                            Text("Leave a Review")
-                                .font(.body)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Color(red: 0.1, green: 0.05, blue: 0.2))
-                            
-                            Image(systemName: "star.fill")
-                                .foregroundColor(Color(red: 0.1, green: 0.05, blue: 0.2))
-                                .font(.system(size: 14, weight: .bold))
-                        }
-                        .padding(.horizontal, 40)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white.opacity(0.95))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.white, lineWidth: 2)
-                                )
-                        )
-                        .shadow(color: Color.white.opacity(0.3), radius: 8, x: 0, y: 0)
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                    )
                     .opacity(hasAnimated ? 1 : 0)
                     .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(1.5), value: hasAnimated)
                 } else {
                     // Get Started button (appears after review is requested)
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            onboardingState.startPersonalization()
+                    MysticalButton(
+                        title: "Get Started",
+                        icon: "sparkles",
+                        isPrimary: true,
+                        action: {
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                onboardingState.startPersonalization()
+                            }
                         }
-                    }) {
-                        HStack(spacing: 12) {
-                            Text("Get Started")
-                                .font(.body)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Color(red: 0.1, green: 0.05, blue: 0.2))
-                            
-                            Image(systemName: "sparkles")
-                                .foregroundColor(Color(red: 0.1, green: 0.05, blue: 0.2))
-                                .font(.system(size: 14, weight: .bold))
-                        }
-                        .padding(.horizontal, 40)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white.opacity(0.95))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.white, lineWidth: 2)
-                                )
-                        )
-                        .shadow(color: Color.white.opacity(0.3), radius: 8, x: 0, y: 0)
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                    )
                     .scaleEffect(1.05)
                     .animation(.spring(response: 0.4, dampingFraction: 0.7), value: hasRequestedReview)
                     .padding(.bottom, 50)
@@ -876,18 +778,9 @@ struct PersonalizationLoadingView: View {
     
     var body: some View {
         ZStack {
-            // Animated gradient background
-            LinearGradient(
-                colors: [
-                    Color.purple.opacity(0.4 + progressValue * 0.2),
-                    Color.indigo.opacity(0.5 + progressValue * 0.2),
-                    Color.blue.opacity(0.4 + progressValue * 0.2)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-            .animation(.easeInOut(duration: 1.5), value: progressValue)
+            // Mystical background matching camera view
+            MysticalCameraBackground()
+                .ignoresSafeArea()
             
             VStack(spacing: 40) {
                 Spacer()
@@ -1079,44 +972,17 @@ struct ReadyToBeginView: View {
             Spacer()
             
             VStack(spacing: 16) {
-                Button(action: {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                        // Trigger the paywall
-                        onFinish()
+                MysticalButton(
+                    title: "Begin Your Journey",
+                    icon: "arrow.right.circle.fill",
+                    isPrimary: true,
+                    action: {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            // Trigger the paywall
+                            onFinish()
+                        }
                     }
-                }) {
-                    HStack(spacing: 12) {
-                        Text("Begin Your Journey")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                        
-                        Image(systemName: "arrow.right.circle.fill")
-                            .foregroundColor(.white)
-                            .font(.system(size: 18))
-                    }
-                    .padding(.horizontal, 40)
-                    .padding(.vertical, 18)
-                    .background(
-                        RoundedRectangle(cornerRadius: 25)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.25),
-                                        Color.white.opacity(0.15)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 25)
-                                    .stroke(Color.white.opacity(0.4), lineWidth: 1.5)
-                            )
-                    )
-                    .shadow(color: Color.white.opacity(0.2), radius: 10, x: 0, y: 0)
-                }
-                .buttonStyle(PlainButtonStyle())
+                )
                 .scaleEffect(hasAnimated ? 1.0 : 0.8)
                 .opacity(hasAnimated ? 1 : 0)
                 .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(1.0), value: hasAnimated)
@@ -1176,32 +1042,16 @@ struct CompletionView: View {
             
             Spacer()
             
-            Button(action: {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    onFinish()
+            MysticalButton(
+                title: "Enter Your Sacred Space",
+                icon: "arrow.right.circle.fill",
+                isPrimary: true,
+                action: {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        onFinish()
+                    }
                 }
-            }) {
-                HStack {
-                    Text("Enter Your Sacred Space")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(Color(red: 0.15, green: 0.1, blue: 0.25))
-                    
-                    Image(systemName: "arrow.right.circle.fill")
-                        .foregroundColor(Color(red: 0.15, green: 0.1, blue: 0.25))
-                }
-                .padding(.horizontal, 32)
-                .padding(.vertical, 16)
-                .background(
-                    RoundedRectangle(cornerRadius: 25)
-                        .fill(Color.white.opacity(0.9))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 25)
-                                .stroke(Color.white, lineWidth: 2)
-                        )
-                )
-            }
-            .buttonStyle(PlainButtonStyle())
+            )
             .scaleEffect(hasAnimated ? 1.0 : 0.8)
             .opacity(hasAnimated ? 1 : 0)
             .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(1.0), value: hasAnimated)

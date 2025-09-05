@@ -175,60 +175,201 @@ struct CameraView: View {
             MysticalCameraBackground()
                 .ignoresSafeArea()
             
-            ScrollView {
-                VStack(spacing: 24) {
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
                         if let image = capturedImage {
-                            VStack(spacing: 20) {
-                                // Mystical palm image display
-                                ZStack {
-                                    // Magical glow background
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .fill(
-                                            RadialGradient(
-                                                colors: [
-                                                    Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3),
-                                                    Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.2),
-                                                    Color.clear
-                                                ],
-                                                center: .center,
-                                                startRadius: 20,
-                                                endRadius: 150
-                                            )
-                                        )
-                                        .frame(maxHeight: 320)
-                                        .blur(radius: 10)
-                                    
-                                    // Image with mystical border
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(maxHeight: 300)
-                                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(
-                                                    LinearGradient(
-                                                        colors: [
-                                                            Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8),
-                                                            Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.6),
-                                                            Color.white.opacity(0.4)
-                                                        ],
-                                                        startPoint: .topLeading,
-                                                        endPoint: .bottomTrailing
-                                                    ),
-                                                    lineWidth: 3
-                                                )
-                                        )
-                                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4), radius: 15, x: 0, y: 8)
-                                        .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
+                            Spacer(minLength: 0)
+                            
+                            ZStack {
+                                // Mystical corner decorations
+                                VStack {
+                                    HStack {
+                                        Image(systemName: "sparkles")
+                                            .font(.title2)
+                                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 8)
+                                        Spacer()
+                                        Image(systemName: "moon.stars.fill")
+                                            .font(.title2)
+                                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 8)
+                                    }
+                                    Spacer()
+                                    HStack {
+                                        Image(systemName: "star")
+                                            .font(.title2)
+                                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 8)
+                                        Spacer()
+                                        Image(systemName: "circle.dotted")
+                                            .font(.title2)
+                                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 8)
+                                    }
                                 }
                                 .padding(.horizontal, 20)
-                                .scaleEffect(hasAnimated ? 1.0 : 0.95)
                                 .opacity(hasAnimated ? 1 : 0)
-                                .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.1), value: hasAnimated)
+                                .animation(.easeOut(duration: 1.0).delay(0.5), value: hasAnimated)
                                 
-                                // Mystical action buttons
-                                HStack(spacing: 20) {
+                                VStack(spacing: 25) {
+                                    // Enhanced header with mystical elements
+                                    VStack(spacing: 12) {
+                                        HStack(spacing: 8) {
+                                            Rectangle()
+                                                .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                                                .frame(width: 30, height: 1)
+                                                .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                                            
+                                            Text("YOUR SACRED PALM")
+                                                .font(.system(.caption, design: .serif, weight: .semibold))
+                                                .tracking(2)
+                                                .foregroundColor(.white.opacity(0.9))
+                                                .shadow(color: Color.black.opacity(0.4), radius: 4)
+                                                .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 6)
+                                            
+                                            Rectangle()
+                                                .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                                                .frame(width: 30, height: 1)
+                                                .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                                        }
+                                        .opacity(hasAnimated ? 1 : 0)
+                                        .animation(.easeOut(duration: 0.8).delay(0.2), value: hasAnimated)
+                                    }
+                                    
+                                    // Enhanced mystical palm image display
+                                    ZStack {
+                                        // Multiple layer glow background
+                                        RoundedRectangle(cornerRadius: 25)
+                                            .fill(
+                                                RadialGradient(
+                                                    colors: [
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4),
+                                                        Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.3),
+                                                        Color.clear
+                                                    ],
+                                                    center: .center,
+                                                    startRadius: 20,
+                                                    endRadius: 180
+                                                )
+                                            )
+                                            .frame(maxHeight: 340)
+                                            .blur(radius: 15)
+                                            .scaleEffect(hasAnimated ? 1.0 : 0.8)
+                                            .opacity(hasAnimated ? 1 : 0)
+                                            .animation(.easeOut(duration: 1.0).delay(0.1), value: hasAnimated)
+                                        
+                                        // Outer mystical frame
+                                        RoundedRectangle(cornerRadius: 28)
+                                            .stroke(
+                                                LinearGradient(
+                                                    colors: [
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6),
+                                                        Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.4),
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6)
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                ),
+                                                lineWidth: 2
+                                            )
+                                            .frame(maxHeight: 320)
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4), radius: 12)
+                                        
+                                        // Main image with enhanced mystical border
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(maxHeight: 300)
+                                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 20)
+                                                    .stroke(
+                                                        LinearGradient(
+                                                            colors: [
+                                                                Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.9),
+                                                                Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.7),
+                                                                Color.white.opacity(0.6),
+                                                                Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.9)
+                                                            ],
+                                                            startPoint: .topLeading,
+                                                            endPoint: .bottomTrailing
+                                                        ),
+                                                        lineWidth: 4
+                                                    )
+                                            )
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5), radius: 20, x: 0, y: 10)
+                                            .shadow(color: Color.black.opacity(0.4), radius: 25, x: 0, y: 12)
+                                            .shadow(color: Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.3), radius: 30, x: 0, y: 8)
+                                        
+                                        // Corner ornaments
+                                        VStack {
+                                            HStack {
+                                                Image(systemName: "plus")
+                                                    .font(.caption)
+                                                    .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8))
+                                                    .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 4)
+                                                Spacer()
+                                                Image(systemName: "plus")
+                                                    .font(.caption)
+                                                    .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8))
+                                                    .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 4)
+                                            }
+                                            Spacer()
+                                            HStack {
+                                                Image(systemName: "plus")
+                                                    .font(.caption)
+                                                    .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8))
+                                                    .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 4)
+                                                Spacer()
+                                                Image(systemName: "plus")
+                                                    .font(.caption)
+                                                    .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8))
+                                                    .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 4)
+                                            }
+                                        }
+                                        .frame(maxWidth: 280, maxHeight: 280)
+                                        .opacity(hasAnimated ? 0.7 : 0)
+                                        .animation(.easeOut(duration: 1.2).delay(0.4), value: hasAnimated)
+                                    }
+                                }
+                            }
+                            
+                            // Enhanced mystical action section
+                            VStack(spacing: 20) {
+                                // Mystical divider
+                                HStack(spacing: 12) {
+                                    Image(systemName: "star.fill")
+                                        .font(.caption)
+                                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.7))
+                                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 4)
+                                    
+                                    Rectangle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8),
+                                                    Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3),
+                                                    Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8)
+                                                ],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
+                                        )
+                                        .frame(height: 1)
+                                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4), radius: 2)
+                                    
+                                    Image(systemName: "star.fill")
+                                        .font(.caption)
+                                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.7))
+                                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 4)
+                                }
+                                .padding(.horizontal, 40)
+                                .opacity(hasAnimated ? 1 : 0)
+                                .scaleEffect(hasAnimated ? 1.0 : 0.3)
+                                .animation(.easeOut(duration: 0.8).delay(0.4), value: hasAnimated)
+                                
+                                // Enhanced mystical action buttons
+                                HStack(spacing: 25) {
                                     MysticalButton(
                                         title: "Retake",
                                         icon: "camera.rotate",
@@ -247,82 +388,202 @@ struct CameraView: View {
                                 }
                                 .opacity(hasAnimated ? 1 : 0)
                                 .animation(.easeOut(duration: 0.6).delay(0.3), value: hasAnimated)
-                            }
+                                }
+                            
+                            Spacer(minLength: 0)
                             
                         
                         } else {
-                            // Initial state - capture palm
-                            VStack(spacing: 24) {
-                                Spacer()
+                            // Enhanced initial state with mystical decorations
+                            Spacer(minLength: 0)
+                            
+                            ZStack {
+                                // Mystical background ornaments
+                                ForEach(0..<8, id: \.self) { index in
+                                    Image(systemName: ["moon.stars", "sparkles", "star", "circle.dotted"][index % 4])
+                                        .font(.system(size: CGFloat.random(in: 20...35)))
+                                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3))
+                                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5), radius: 8)
+                                        .position(
+                                            x: CGFloat.random(in: 50...300),
+                                            y: CGFloat.random(in: 100...400)
+                                        )
+                                        .opacity(hasAnimated ? 0.6 : 0)
+                                        .scaleEffect(hasAnimated ? 1.0 : 0.3)
+                                        .animation(
+                                            .easeOut(duration: 1.5)
+                                                .delay(Double(index) * 0.2 + 0.5),
+                                            value: hasAnimated
+                                        )
+                                }
                                 
-                                VStack(spacing: 24) {
-                                    // Mystical hand icon with glow
+                                VStack(spacing: 30) {
+                                    // Ornate header decoration
+                                    HStack(spacing: 16) {
+                                        Image(systemName: "moon.stars.fill")
+                                            .font(.title)
+                                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8))
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 8)
+                                        
+                                        Rectangle()
+                                            .fill(
+                                                LinearGradient(
+                                                    colors: [
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8),
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3),
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8)
+                                                    ],
+                                                    startPoint: .leading,
+                                                    endPoint: .trailing
+                                                )
+                                            )
+                                            .frame(height: 2)
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6), radius: 4)
+                                        
+                                        Image(systemName: "sparkles")
+                                            .font(.title)
+                                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8))
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 8)
+                                    }
+                                    .opacity(hasAnimated ? 1 : 0)
+                                    .animation(.easeOut(duration: 1.0).delay(0.3), value: hasAnimated)
+                                    
+                                    // Enhanced mystical hand icon with multiple layers
                                     ZStack {
+                                        // Outer glow ring
+                                        Circle()
+                                            .stroke(
+                                                LinearGradient(
+                                                    colors: [
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4),
+                                                        Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.3),
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4)
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                ),
+                                                lineWidth: 3
+                                            )
+                                            .frame(width: 180, height: 180)
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4), radius: 15)
+                                            .scaleEffect(hasAnimated ? 1.1 : 1.0)
+                                            .opacity(hasAnimated ? 0.4 : 0.8)
+                                            .animation(.easeInOut(duration: 3).repeatForever(autoreverses: true), value: hasAnimated)
+                                        
+                                        // Main hand icon
                                         Image(systemName: "hand.raised.fill")
-                                            .font(.system(size: 100))
+                                            .font(.system(size: 120))
                                             .foregroundStyle(
                                                 LinearGradient(
                                                     colors: [
                                                         Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13),
                                                         Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45),
-                                                        Color.white
+                                                        Color.white.opacity(0.9)
                                                     ],
                                                     startPoint: .topLeading,
                                                     endPoint: .bottomTrailing
                                                 )
                                             )
-                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6), radius: 20)
-                                            .shadow(color: Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.4), radius: 30)
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8), radius: 25)
+                                            .shadow(color: Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.6), radius: 35)
+                                            .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
                                         
-                                        // Pulsing aura
+                                        // Inner pulsing aura
                                         Circle()
                                             .stroke(
-                                                Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3),
+                                                Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6),
                                                 lineWidth: 2
                                             )
                                             .frame(width: 140, height: 140)
                                             .scaleEffect(hasAnimated ? 1.2 : 1.0)
-                                            .opacity(hasAnimated ? 0.3 : 0.8)
+                                            .opacity(hasAnimated ? 0.2 : 0.7)
                                             .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: hasAnimated)
+                                        
+                                        // Mystical symbols around the hand
+                                        ForEach(0..<6, id: \.self) { index in
+                                            Image(systemName: "star.fill")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8))
+                                                .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                                                .offset(
+                                                    x: cos(Double(index) * .pi / 3) * 90,
+                                                    y: sin(Double(index) * .pi / 3) * 90
+                                                )
+                                                .opacity(hasAnimated ? 1 : 0)
+                                                .scaleEffect(hasAnimated ? 1.0 : 0.3)
+                                                .animation(
+                                                    .easeOut(duration: 0.8)
+                                                        .delay(Double(index) * 0.1 + 1.0),
+                                                    value: hasAnimated
+                                                )
+                                        }
                                     }
                                     .scaleEffect(hasAnimated ? 1.0 : 0.8)
                                     .opacity(hasAnimated ? 1 : 0)
-                                    .animation(.spring(response: 1.2, dampingFraction: 0.6).delay(0.2), value: hasAnimated)
+                                    .animation(.spring(response: 1.5, dampingFraction: 0.6).delay(0.4), value: hasAnimated)
                                     
-                                    VStack(spacing: 16) {
+                                    VStack(spacing: 20) {
                                         Text("Discover Your Destiny")
                                             .font(.system(.largeTitle, design: .serif, weight: .bold))
                                             .foregroundStyle(
                                                 LinearGradient(
                                                     colors: [
                                                         Color.white,
-                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8)
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.9),
+                                                        Color.white.opacity(0.8)
                                                     ],
                                                     startPoint: .topLeading,
                                                     endPoint: .bottomTrailing
                                                 )
                                             )
                                             .multilineTextAlignment(.center)
-                                            .shadow(color: Color.black.opacity(0.4), radius: 8, x: 0, y: 4)
-                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 12)
+                                            .shadow(color: Color.black.opacity(0.6), radius: 10, x: 0, y: 5)
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5), radius: 15)
                                             .opacity(hasAnimated ? 1 : 0)
                                             .offset(y: hasAnimated ? 0 : 30)
-                                            .animation(.easeOut(duration: 1.0).delay(0.4), value: hasAnimated)
+                                            .animation(.easeOut(duration: 1.2).delay(0.8), value: hasAnimated)
                                         
-                                        Text("Let the ancient wisdom of palm reading reveal the mysteries written in your hands")
-                                            .font(.system(.body, design: .serif))
-                                            .foregroundColor(.white.opacity(0.9))
-                                            .multilineTextAlignment(.center)
-                                            .lineSpacing(6)
-                                            .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 2)
-                                            .opacity(hasAnimated ? 1 : 0)
-                                            .offset(y: hasAnimated ? 0 : 30)
-                                            .animation(.easeOut(duration: 1.0).delay(0.6), value: hasAnimated)
+                                        VStack(spacing: 8) {
+                                            Text("Let the ancient wisdom of palm reading")
+                                                .font(.system(.body, design: .serif, weight: .medium))
+                                                .foregroundColor(.white.opacity(0.95))
+                                                .multilineTextAlignment(.center)
+                                                .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
+                                            
+                                            Text("reveal the mysteries written in your hands")
+                                                .font(.system(.body, design: .serif, weight: .medium))
+                                                .foregroundColor(.white.opacity(0.95))
+                                                .multilineTextAlignment(.center)
+                                                .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
+                                        }
+                                        .opacity(hasAnimated ? 1 : 0)
+                                        .offset(y: hasAnimated ? 0 : 30)
+                                        .animation(.easeOut(duration: 1.2).delay(1.0), value: hasAnimated)
+                                        
+                                        // Mystical divider
+                                        HStack(spacing: 12) {
+                                            Image(systemName: "star.fill")
+                                                .font(.caption)
+                                                .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.7))
+                                                .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 4)
+                                            
+                                            Rectangle()
+                                                .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5))
+                                                .frame(width: 60, height: 1)
+                                                .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4), radius: 2)
+                                            
+                                            Image(systemName: "star.fill")
+                                                .font(.caption)
+                                                .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.7))
+                                                .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 4)
+                                        }
+                                        .opacity(hasAnimated ? 1 : 0)
+                                        .scaleEffect(hasAnimated ? 1.0 : 0.3)
+                                        .animation(.easeOut(duration: 0.8).delay(1.2), value: hasAnimated)
                                     }
                                 }
-                                .padding(.horizontal, 32)
-                                
-                                Spacer()
+                                .padding(.horizontal, 28)
+                            }
                                 
                                 VStack(spacing: 16) {
                                     MysticalButton(
@@ -342,10 +603,11 @@ struct CameraView: View {
                                         .opacity(hasAnimated ? 1 : 0)
                                         .animation(.easeOut(duration: 0.8).delay(1.0), value: hasAnimated)
                                 }
-                                .padding(.bottom, 60)
-                            }
+                            
+                            Spacer(minLength: 0)
                         }
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height)
             }
             .sheet(isPresented: $showCamera) {
                 ImagePicker(image: $capturedImage, sourceType: .camera)
@@ -1017,53 +1279,222 @@ struct AncientTomeView: View {
     }
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        ZStack {
+            // Mystical background
+            MysticalCameraBackground()
+                .ignoresSafeArea()
+            
+            ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
-                // Mystical Header
-                VStack(spacing: 24) {
-                    // Celestial ornament
-                    HStack(spacing: 12) {
-                        Circle()
-                            .fill(primaryGold.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                            .shadow(color: primaryGold, radius: 4)
-                        
-                        Image(systemName: "moon.stars.fill")
-                            .font(.title)
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [primaryGold, mysticalBlue],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                // Enhanced Mystical Header
+                VStack(spacing: 30) {
+                    // Elaborate celestial ornament with multiple layers
+                    VStack(spacing: 16) {
+                        // Top ornamental line
+                        HStack(spacing: 8) {
+                            Image(systemName: "star.fill")
+                                .font(.caption)
+                                .foregroundColor(primaryGold.opacity(0.6))
+                                .shadow(color: primaryGold, radius: 4)
+                            
+                            Rectangle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            primaryGold.opacity(0.8),
+                                            primaryGold.opacity(0.3),
+                                            primaryGold.opacity(0.8)
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
                                 )
-                            )
-                            .shadow(color: primaryGold.opacity(0.5), radius: 6)
+                                .frame(width: 80, height: 1)
+                                .shadow(color: primaryGold.opacity(0.4), radius: 2)
+                            
+                            Image(systemName: "sparkles")
+                                .font(.caption)
+                                .foregroundColor(primaryGold.opacity(0.6))
+                                .shadow(color: primaryGold, radius: 4)
+                            
+                            Rectangle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            primaryGold.opacity(0.8),
+                                            primaryGold.opacity(0.3),
+                                            primaryGold.opacity(0.8)
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(width: 80, height: 1)
+                                .shadow(color: primaryGold.opacity(0.4), radius: 2)
+                            
+                            Image(systemName: "star.fill")
+                                .font(.caption)
+                                .foregroundColor(primaryGold.opacity(0.6))
+                                .shadow(color: primaryGold, radius: 4)
+                        }
                         
-                        Circle()
-                            .fill(primaryGold.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                            .shadow(color: primaryGold, radius: 4)
+                        // Main celestial symbol with enhanced decoration
+                        ZStack {
+                            // Outer glow ring
+                            Circle()
+                                .stroke(primaryGold.opacity(0.2), lineWidth: 2)
+                                .frame(width: 80, height: 80)
+                                .shadow(color: primaryGold.opacity(0.3), radius: 8)
+                            
+                            // Inner decorative elements
+                            HStack(spacing: 16) {
+                                Circle()
+                                    .fill(primaryGold.opacity(0.4))
+                                    .frame(width: 12, height: 12)
+                                    .shadow(color: primaryGold, radius: 6)
+                                
+                                Image(systemName: "moon.stars.fill")
+                                    .font(.title)
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [
+                                                primaryGold,
+                                                mysticalBlue.opacity(0.8),
+                                                primaryGold.opacity(0.7)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .shadow(color: primaryGold.opacity(0.6), radius: 8)
+                                    .shadow(color: mysticalBlue.opacity(0.4), radius: 12)
+                                
+                                Circle()
+                                    .fill(primaryGold.opacity(0.4))
+                                    .frame(width: 12, height: 12)
+                                    .shadow(color: primaryGold, radius: 6)
+                            }
+                            
+                            // Rotating mystical symbols
+                            ForEach(0..<4, id: \.self) { index in
+                                Image(systemName: "plus")
+                                    .font(.caption2)
+                                    .foregroundColor(primaryGold.opacity(0.5))
+                                    .shadow(color: primaryGold, radius: 3)
+                                    .offset(
+                                        x: cos(Double(index) * .pi / 2) * 35,
+                                        y: sin(Double(index) * .pi / 2) * 35
+                                    )
+                            }
+                        }
+                        
+                        // Bottom ornamental line (mirror of top)
+                        HStack(spacing: 8) {
+                            Image(systemName: "star.fill")
+                                .font(.caption)
+                                .foregroundColor(primaryGold.opacity(0.6))
+                                .shadow(color: primaryGold, radius: 4)
+                            
+                            Rectangle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            primaryGold.opacity(0.8),
+                                            primaryGold.opacity(0.3),
+                                            primaryGold.opacity(0.8)
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(width: 80, height: 1)
+                                .shadow(color: primaryGold.opacity(0.4), radius: 2)
+                            
+                            Image(systemName: "circle.dotted")
+                                .font(.caption)
+                                .foregroundColor(primaryGold.opacity(0.6))
+                                .shadow(color: primaryGold, radius: 4)
+                            
+                            Rectangle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            primaryGold.opacity(0.8),
+                                            primaryGold.opacity(0.3),
+                                            primaryGold.opacity(0.8)
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(width: 80, height: 1)
+                                .shadow(color: primaryGold.opacity(0.4), radius: 2)
+                            
+                            Image(systemName: "star.fill")
+                                .font(.caption)
+                                .foregroundColor(primaryGold.opacity(0.6))
+                                .shadow(color: primaryGold, radius: 4)
+                        }
                     }
                     
-                    // Title
-                    VStack(spacing: 8) {
+                    // Enhanced Title with background
+                    VStack(spacing: 12) {
                         Text("PALM READING")
                             .font(.custom("Avenir Next", size: 13))
-                            .fontWeight(.medium)
-                            .tracking(3)
-                            .foregroundColor(mysticalBlue.opacity(0.8))
+                            .fontWeight(.bold)
+                            .tracking(4)
+                            .foregroundColor(.white)
+                            .shadow(color: primaryGold.opacity(0.8), radius: 8)
+                            .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 2)
                         
                         Text("Mystical Insights")
-                            .font(.custom("Playfair Display", size: 28))
-                            .fontWeight(.light)
+                            .font(.custom("Playfair Display", size: 32))
+                            .fontWeight(.medium)
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: [deepPurple, mysticalBlue],
+                                    colors: [
+                                        Color.white,
+                                        primaryGold.opacity(0.9),
+                                        Color.white.opacity(0.8)
+                                    ],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
+                            .shadow(color: primaryGold.opacity(0.6), radius: 12)
+                            .shadow(color: .black.opacity(0.8), radius: 6, x: 0, y: 3)
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.black.opacity(0.4),
+                                        deepPurple.opacity(0.3),
+                                        Color.black.opacity(0.3)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [
+                                                primaryGold.opacity(0.6),
+                                                mysticalBlue.opacity(0.4),
+                                                primaryGold.opacity(0.4)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1.5
+                                    )
+                            )
+                    )
                 }
                 .padding(.top, 30)
                 .padding(.bottom, 40)
@@ -1262,6 +1693,7 @@ struct AncientTomeView: View {
         }
         .onAppear {
             startElegantAnimation()
+        }
         }
     }
     
@@ -1478,9 +1910,8 @@ struct SpiritualMeter: View {
 // MARK: - Mystical Camera Components
 
 struct MysticalCameraBackground: View {
-    @State private var orbRotation: Double = 0
-    @State private var particleOpacity: Double = 0
-    @State private var gradientShift: Double = 0
+    @State private var starsOffset: [CGFloat] = Array(repeating: -50, count: 12)
+    @State private var starsOpacity: [Double] = Array(repeating: 0, count: 12)
     
     private let primaryGold = Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13)
     private let mysticalBlue = Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45)
@@ -1488,7 +1919,7 @@ struct MysticalCameraBackground: View {
     
     var body: some View {
         ZStack {
-            // Animated gradient background
+            // Stable gradient background
             LinearGradient(
                 colors: [
                     deepPurple,
@@ -1496,83 +1927,70 @@ struct MysticalCameraBackground: View {
                     deepPurple.opacity(0.8),
                     Color.black.opacity(0.9)
                 ],
-                startPoint: UnitPoint(x: 0.2 + gradientShift * 0.3, y: 0.1 + gradientShift * 0.2),
-                endPoint: UnitPoint(x: 0.8 - gradientShift * 0.2, y: 0.9 - gradientShift * 0.3)
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
             
-            // Floating mystical orbs
-            ForEach(0..<8, id: \.self) { index in
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                primaryGold.opacity(0.6),
-                                mysticalBlue.opacity(0.4),
-                                Color.clear
-                            ],
-                            center: .center,
-                            startRadius: 2,
-                            endRadius: 30
-                        )
+            // Gentle falling stars
+            ForEach(0..<12, id: \.self) { index in
+                Image(systemName: "star.fill")
+                    .font(.system(size: CGFloat.random(in: 8...16)))
+                    .foregroundColor(primaryGold.opacity(0.6))
+                    .shadow(color: primaryGold.opacity(0.4), radius: 4)
+                    .position(
+                        x: CGFloat.random(in: 30...350),
+                        y: starsOffset[index]
                     )
-                    .frame(width: CGFloat.random(in: 20...60))
-                    .offset(
-                        x: CGFloat.random(in: -150...150),
-                        y: CGFloat.random(in: -300...300)
-                    )
-                    .opacity(particleOpacity)
-                    .rotationEffect(.degrees(orbRotation + Double(index) * 45))
+                    .opacity(starsOpacity[index])
                     .animation(
-                        .easeInOut(duration: Double.random(in: 3...8))
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(index) * 0.5),
-                        value: orbRotation
+                        .linear(duration: Double.random(in: 8...15))
+                            .repeatForever(autoreverses: false)
+                            .delay(Double(index) * 0.8),
+                        value: starsOffset[index]
                     )
             }
             
-            // Mystical particle field
-            ForEach(0..<20, id: \.self) { index in
-                Circle()
-                    .fill(primaryGold.opacity(0.3))
-                    .frame(width: CGFloat.random(in: 2...6))
-                    .offset(
-                        x: CGFloat.random(in: -200...200),
-                        y: CGFloat.random(in: -400...400)
-                    )
-                    .opacity(particleOpacity * 0.7)
-                    .scaleEffect(1 + sin(orbRotation + Double(index)) * 0.2)
-                    .animation(
-                        .easeInOut(duration: Double.random(in: 2...6))
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(index) * 0.3),
-                        value: orbRotation
-                    )
-            }
-            
-            // Ethereal glow overlay
+            // Subtle center glow
             RadialGradient(
                 colors: [
-                    primaryGold.opacity(0.1),
-                    mysticalBlue.opacity(0.05),
+                    primaryGold.opacity(0.05),
                     Color.clear
                 ],
                 center: .center,
-                startRadius: 50,
+                startRadius: 100,
                 endRadius: 300
             )
-            .opacity(0.8)
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 2)) {
-                particleOpacity = 1
-            }
-            
-            withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
-                orbRotation = 360
-            }
-            
-            withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
-                gradientShift = 1
+            // Start gentle falling star animation
+            for index in 0..<12 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.8) {
+                    withAnimation {
+                        starsOpacity[index] = 1.0
+                    }
+                    
+                    // Animate falling with restart
+                    Timer.scheduledTimer(withTimeInterval: Double.random(in: 8...15), repeats: true) { _ in
+                        withAnimation(.linear(duration: 0.5)) {
+                            starsOpacity[index] = 0
+                            starsOffset[index] = -50
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            starsOffset[index] = UIScreen.main.bounds.height + 50
+                            withAnimation(.linear(duration: Double.random(in: 8...15))) {
+                                starsOffset[index] = -50
+                                starsOpacity[index] = 1.0
+                            }
+                        }
+                    }
+                    
+                    // Initial fall
+                    starsOffset[index] = UIScreen.main.bounds.height + 50
+                    withAnimation(.linear(duration: Double.random(in: 8...15))) {
+                        starsOffset[index] = -50
+                    }
+                }
             }
         }
     }
