@@ -179,62 +179,71 @@ struct CameraView: View {
                 VStack(spacing: 24) {
                         if let image = capturedImage {
                             VStack(spacing: 20) {
-                                // Palm image display
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxHeight: 300)
-                                    .cornerRadius(20)
-                                    .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
-                                    .padding(.horizontal, 20)
-                                    .scaleEffect(hasAnimated ? 1.0 : 0.95)
-                                    .opacity(hasAnimated ? 1 : 0)
-                                    .animation(.easeOut(duration: 0.6).delay(0.1), value: hasAnimated)
-                                
-                                // Action buttons
-                                HStack(spacing: 16) {
-                                    Button(action: retakePhoto) {
-                                        HStack(spacing: 8) {
-                                            Image(systemName: "camera.rotate")
-                                            Text("Retake")
-                                        }
-                                        .font(.body)
-                                        .fontWeight(.medium)
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 12)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .fill(Color.white.opacity(0.2))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 16)
-                                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                                )
+                                // Mystical palm image display
+                                ZStack {
+                                    // Magical glow background
+                                    RoundedRectangle(cornerRadius: 25)
+                                        .fill(
+                                            RadialGradient(
+                                                colors: [
+                                                    Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3),
+                                                    Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.2),
+                                                    Color.clear
+                                                ],
+                                                center: .center,
+                                                startRadius: 20,
+                                                endRadius: 150
+                                            )
                                         )
-                                    }
+                                        .frame(maxHeight: 320)
+                                        .blur(radius: 10)
                                     
-                                    Button(action: {
-                                        analysisState = .loading
-                                    }) {
-                                        HStack(spacing: 8) {
-                                            Image(systemName: "hand.raised")
-                                            Text("Read Palm")
-                                        }
-                                        .font(.body)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 12)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .fill(Color.white.opacity(0.25))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 16)
-                                                        .stroke(Color.white.opacity(0.4), lineWidth: 1)
+                                    // Image with mystical border
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxHeight: 300)
+                                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(
+                                                    LinearGradient(
+                                                        colors: [
+                                                            Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8),
+                                                            Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.6),
+                                                            Color.white.opacity(0.4)
+                                                        ],
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    ),
+                                                    lineWidth: 3
                                                 )
                                         )
-                                        .shadow(color: Color.white.opacity(0.2), radius: 8, x: 0, y: 0)
-                                    }
+                                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4), radius: 15, x: 0, y: 8)
+                                        .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
+                                }
+                                .padding(.horizontal, 20)
+                                .scaleEffect(hasAnimated ? 1.0 : 0.95)
+                                .opacity(hasAnimated ? 1 : 0)
+                                .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.1), value: hasAnimated)
+                                
+                                // Mystical action buttons
+                                HStack(spacing: 20) {
+                                    MysticalButton(
+                                        title: "Retake",
+                                        icon: "camera.rotate",
+                                        isPrimary: false,
+                                        action: retakePhoto
+                                    )
+                                    
+                                    MysticalButton(
+                                        title: "Read Palm",
+                                        icon: "hand.raised",
+                                        isPrimary: true,
+                                        action: {
+                                            analysisState = .loading
+                                        }
+                                    )
                                 }
                                 .opacity(hasAnimated ? 1 : 0)
                                 .animation(.easeOut(duration: 0.6).delay(0.3), value: hasAnimated)
@@ -246,34 +255,69 @@ struct CameraView: View {
                             VStack(spacing: 24) {
                                 Spacer()
                                 
-                                VStack(spacing: 20) {
-                                    Image(systemName: "hand.raised.fill")
-                                        .font(.system(size: 80))
-                                        .foregroundColor(.white.opacity(0.8))
-                                        .scaleEffect(hasAnimated ? 1.0 : 0.8)
-                                        .opacity(hasAnimated ? 1 : 0)
-                                        .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.2), value: hasAnimated)
-                                    
-                                    VStack(spacing: 12) {
-                                        Text("Discover Your Destiny")
-                                            .font(.largeTitle)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
-                                            .multilineTextAlignment(.center)
-                                            .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 2)
-                                            .opacity(hasAnimated ? 1 : 0)
-                                            .offset(y: hasAnimated ? 0 : 20)
-                                            .animation(.easeOut(duration: 0.8).delay(0.4), value: hasAnimated)
+                                VStack(spacing: 24) {
+                                    // Mystical hand icon with glow
+                                    ZStack {
+                                        Image(systemName: "hand.raised.fill")
+                                            .font(.system(size: 100))
+                                            .foregroundStyle(
+                                                LinearGradient(
+                                                    colors: [
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13),
+                                                        Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45),
+                                                        Color.white
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6), radius: 20)
+                                            .shadow(color: Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45).opacity(0.4), radius: 30)
                                         
-                                        Text("Let the ancient art of palm reading reveal the secrets written in your hands")
-                                            .font(.body)
+                                        // Pulsing aura
+                                        Circle()
+                                            .stroke(
+                                                Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3),
+                                                lineWidth: 2
+                                            )
+                                            .frame(width: 140, height: 140)
+                                            .scaleEffect(hasAnimated ? 1.2 : 1.0)
+                                            .opacity(hasAnimated ? 0.3 : 0.8)
+                                            .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: hasAnimated)
+                                    }
+                                    .scaleEffect(hasAnimated ? 1.0 : 0.8)
+                                    .opacity(hasAnimated ? 1 : 0)
+                                    .animation(.spring(response: 1.2, dampingFraction: 0.6).delay(0.2), value: hasAnimated)
+                                    
+                                    VStack(spacing: 16) {
+                                        Text("Discover Your Destiny")
+                                            .font(.system(.largeTitle, design: .serif, weight: .bold))
+                                            .foregroundStyle(
+                                                LinearGradient(
+                                                    colors: [
+                                                        Color.white,
+                                                        Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.8)
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                            .multilineTextAlignment(.center)
+                                            .shadow(color: Color.black.opacity(0.4), radius: 8, x: 0, y: 4)
+                                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 12)
+                                            .opacity(hasAnimated ? 1 : 0)
+                                            .offset(y: hasAnimated ? 0 : 30)
+                                            .animation(.easeOut(duration: 1.0).delay(0.4), value: hasAnimated)
+                                        
+                                        Text("Let the ancient wisdom of palm reading reveal the mysteries written in your hands")
+                                            .font(.system(.body, design: .serif))
                                             .foregroundColor(.white.opacity(0.9))
                                             .multilineTextAlignment(.center)
-                                            .lineSpacing(4)
-                                            .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                            .lineSpacing(6)
+                                            .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 2)
                                             .opacity(hasAnimated ? 1 : 0)
-                                            .offset(y: hasAnimated ? 0 : 20)
-                                            .animation(.easeOut(duration: 0.8).delay(0.6), value: hasAnimated)
+                                            .offset(y: hasAnimated ? 0 : 30)
+                                            .animation(.easeOut(duration: 1.0).delay(0.6), value: hasAnimated)
                                     }
                                 }
                                 .padding(.horizontal, 32)
@@ -281,38 +325,15 @@ struct CameraView: View {
                                 Spacer()
                                 
                                 VStack(spacing: 16) {
-                                    Button(action: { showCamera = true }) {
-                                        HStack(spacing: 12) {
-                                            Image(systemName: "camera.fill")
-                                            Text("Capture Your Palm")
-                                        }
-                                        .font(.headline)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 32)
-                                        .padding(.vertical, 16)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 25)
-                                                .fill(
-                                                    LinearGradient(
-                                                        colors: [
-                                                            Color.white.opacity(0.25),
-                                                            Color.white.opacity(0.15)
-                                                        ],
-                                                        startPoint: .top,
-                                                        endPoint: .bottom
-                                                    )
-                                                )
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 25)
-                                                        .stroke(Color.white.opacity(0.4), lineWidth: 1.5)
-                                                )
-                                        )
-                                        .shadow(color: Color.white.opacity(0.2), radius: 10, x: 0, y: 0)
-                                    }
+                                    MysticalButton(
+                                        title: "Capture Your Palm",
+                                        icon: "camera.fill",
+                                        isPrimary: true,
+                                        action: { showCamera = true }
+                                    )
                                     .scaleEffect(hasAnimated ? 1.0 : 0.8)
                                     .opacity(hasAnimated ? 1 : 0)
-                                    .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(0.8), value: hasAnimated)
+                                    .animation(.spring(response: 1.0, dampingFraction: 0.7).delay(0.8), value: hasAnimated)
                                     
                                     Text("Hold your palm steady and capture a clear image")
                                         .font(.caption)
@@ -1454,6 +1475,211 @@ struct SpiritualMeter: View {
     }
 }
 
+// MARK: - Mystical Camera Components
+
+struct MysticalCameraBackground: View {
+    @State private var orbRotation: Double = 0
+    @State private var particleOpacity: Double = 0
+    @State private var gradientShift: Double = 0
+    
+    private let primaryGold = Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13)
+    private let mysticalBlue = Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45)
+    private let deepPurple = Color(.sRGB, red: 0.15, green: 0.05, blue: 0.35)
+    
+    var body: some View {
+        ZStack {
+            // Animated gradient background
+            LinearGradient(
+                colors: [
+                    deepPurple,
+                    mysticalBlue,
+                    deepPurple.opacity(0.8),
+                    Color.black.opacity(0.9)
+                ],
+                startPoint: UnitPoint(x: 0.2 + gradientShift * 0.3, y: 0.1 + gradientShift * 0.2),
+                endPoint: UnitPoint(x: 0.8 - gradientShift * 0.2, y: 0.9 - gradientShift * 0.3)
+            )
+            
+            // Floating mystical orbs
+            ForEach(0..<8, id: \.self) { index in
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                primaryGold.opacity(0.6),
+                                mysticalBlue.opacity(0.4),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 2,
+                            endRadius: 30
+                        )
+                    )
+                    .frame(width: CGFloat.random(in: 20...60))
+                    .offset(
+                        x: CGFloat.random(in: -150...150),
+                        y: CGFloat.random(in: -300...300)
+                    )
+                    .opacity(particleOpacity)
+                    .rotationEffect(.degrees(orbRotation + Double(index) * 45))
+                    .animation(
+                        .easeInOut(duration: Double.random(in: 3...8))
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(index) * 0.5),
+                        value: orbRotation
+                    )
+            }
+            
+            // Mystical particle field
+            ForEach(0..<20, id: \.self) { index in
+                Circle()
+                    .fill(primaryGold.opacity(0.3))
+                    .frame(width: CGFloat.random(in: 2...6))
+                    .offset(
+                        x: CGFloat.random(in: -200...200),
+                        y: CGFloat.random(in: -400...400)
+                    )
+                    .opacity(particleOpacity * 0.7)
+                    .scaleEffect(1 + sin(orbRotation + Double(index)) * 0.2)
+                    .animation(
+                        .easeInOut(duration: Double.random(in: 2...6))
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(index) * 0.3),
+                        value: orbRotation
+                    )
+            }
+            
+            // Ethereal glow overlay
+            RadialGradient(
+                colors: [
+                    primaryGold.opacity(0.1),
+                    mysticalBlue.opacity(0.05),
+                    Color.clear
+                ],
+                center: .center,
+                startRadius: 50,
+                endRadius: 300
+            )
+            .opacity(0.8)
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 2)) {
+                particleOpacity = 1
+            }
+            
+            withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
+                orbRotation = 360
+            }
+            
+            withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
+                gradientShift = 1
+            }
+        }
+    }
+}
+
+struct MysticalButton: View {
+    let title: String
+    let icon: String
+    let isPrimary: Bool
+    let action: () -> Void
+    
+    @State private var glowIntensity: Double = 0.5
+    @State private var shimmerOffset: CGFloat = -200
+    
+    private let primaryGold = Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13)
+    private let mysticalBlue = Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45)
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+            .background {
+                ZStack {
+                    // Base gradient
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(
+                            LinearGradient(
+                                colors: isPrimary ? [
+                                    primaryGold.opacity(0.8),
+                                    mysticalBlue.opacity(0.6),
+                                    primaryGold.opacity(0.4)
+                                ] : [
+                                    Color.white.opacity(0.15),
+                                    Color.white.opacity(0.08),
+                                    Color.white.opacity(0.12)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                    
+                    // Shimmer effect
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.clear,
+                                    Color.white.opacity(0.3),
+                                    Color.clear
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .offset(x: shimmerOffset)
+                        .clipped()
+                    
+                    // Border glow
+                    RoundedRectangle(cornerRadius: 25)
+                        .stroke(
+                            LinearGradient(
+                                colors: isPrimary ? [
+                                    primaryGold.opacity(0.8),
+                                    mysticalBlue.opacity(0.6)
+                                ] : [
+                                    Color.white.opacity(0.4),
+                                    Color.white.opacity(0.2)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 2
+                        )
+                        .opacity(glowIntensity)
+                }
+            }
+            .shadow(color: isPrimary ? primaryGold.opacity(0.4) : Color.white.opacity(0.2), radius: 12, x: 0, y: 8)
+            .shadow(color: isPrimary ? mysticalBlue.opacity(0.3) : Color.clear, radius: 20, x: 0, y: 4)
+        }
+        .onAppear {
+            // Breathing glow effect
+            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+                glowIntensity = isPrimary ? 1.0 : 0.8
+            }
+            
+            // Periodic shimmer
+            Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
+                withAnimation(.easeInOut(duration: 1.5)) {
+                    shimmerOffset = 200
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    shimmerOffset = -200
+                }
+            }
+        }
+    }
+}
 
 #Preview {
     CameraView()
