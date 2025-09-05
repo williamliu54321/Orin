@@ -149,7 +149,7 @@ struct CameraView: View {
     
     let palmAnalysisPrompt = """
     Analyze this palm image and provide a detailed palm reading. Return your
-    response in JSON format with the following structure. If there is any reason that you can't give a repsonse make it blank for all the options:
+    response in JSON format with the following structure. If you cant analyze the image, make all the ratings 0:
 
     {
       "summary": "Brief overview of what the palm reveals about the person",
@@ -737,11 +737,31 @@ struct AncientTomeView: View {
                     title: "Soul Overview",
                     icon: "sparkles",
                     content: {
-                        Text(palmReading.summary)
-                            .font(.custom("Georgia", size: 16))
-                            .lineHeight(1.6)
-                            .foregroundColor(deepPurple.opacity(0.85))
-                            .multilineTextAlignment(.leading)
+                        if palmReading.summary.isEmpty || palmReading.summary.contains("NO_SUMMARY") {
+                            VStack(spacing: 12) {
+                                Image(systemName: "exclamationmark.triangle")
+                                    .font(.title3)
+                                    .foregroundColor(Color.orange)
+                                
+                                Text("ERROR: Soul analysis unavailable")
+                                    .font(.custom("Avenir Next", size: 14))
+                                    .fontWeight(.medium)
+                                    .foregroundColor(deepPurple.opacity(0.8))
+                                
+                                Text("The palm's spiritual essence could not be read")
+                                    .font(.custom("Georgia", size: 12))
+                                    .foregroundColor(deepPurple.opacity(0.6))
+                                    .italic()
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.vertical, 16)
+                        } else {
+                            Text(palmReading.summary)
+                                .font(.custom("Georgia", size: 16))
+                                .lineHeight(1.6)
+                                .foregroundColor(deepPurple.opacity(0.85))
+                                .multilineTextAlignment(.leading)
+                        }
                     },
                     index: 0,
                     cardOffset: cardOffset,
@@ -770,12 +790,32 @@ struct AncientTomeView: View {
                     title: "Divine Guidance",
                     icon: "lightbulb.max.fill",
                     content: {
-                        Text(palmReading.advice)
-                            .font(.custom("Georgia", size: 16))
-                            .fontStyle(.italic)
-                            .lineHeight(1.7)
-                            .foregroundColor(deepPurple.opacity(0.8))
-                            .multilineTextAlignment(.leading)
+                        if palmReading.advice.isEmpty || palmReading.advice.contains("NO_ADVICE") {
+                            VStack(spacing: 12) {
+                                Image(systemName: "exclamationmark.triangle")
+                                    .font(.title3)
+                                    .foregroundColor(Color.orange)
+                                
+                                Text("ERROR: Divine guidance unavailable")
+                                    .font(.custom("Avenir Next", size: 14))
+                                    .fontWeight(.medium)
+                                    .foregroundColor(deepPurple.opacity(0.8))
+                                
+                                Text("The cosmic wisdom could not be channeled")
+                                    .font(.custom("Georgia", size: 12))
+                                    .foregroundColor(deepPurple.opacity(0.6))
+                                    .italic()
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.vertical, 16)
+                        } else {
+                            Text(palmReading.advice)
+                                .font(.custom("Georgia", size: 16))
+                                .fontStyle(.italic)
+                                .lineHeight(1.7)
+                                .foregroundColor(deepPurple.opacity(0.8))
+                                .multilineTextAlignment(.leading)
+                        }
                     },
                     index: 2,
                     cardOffset: cardOffset,
@@ -787,10 +827,41 @@ struct AncientTomeView: View {
                     title: "Spiritual Resonance",
                     icon: "waveform.path.ecg",
                     content: {
-                        VStack(spacing: 24) {
-                            SpiritualMeter(label: "Clarity", value: palmReading.rating.clarity, color: primaryGold)
-                            SpiritualMeter(label: "Spiritual Energy", value: palmReading.rating.spiritual_energy, color: mysticalBlue)
-                            SpiritualMeter(label: "Introspection", value: palmReading.rating.introspection, color: deepPurple)
+                        let textFieldsEmpty = palmReading.summary.isEmpty && 
+                                             palmReading.lines.life_line.isEmpty && 
+                                             palmReading.lines.heart_line.isEmpty && 
+                                             palmReading.lines.head_line.isEmpty && 
+                                             palmReading.lines.fate_line.isEmpty && 
+                                             palmReading.advice.isEmpty
+                        
+                        let allRatingsZero = palmReading.rating.clarity == 0 && 
+                                           palmReading.rating.spiritual_energy == 0 && 
+                                           palmReading.rating.introspection == 0
+                        
+                        if textFieldsEmpty || allRatingsZero {
+                            VStack(spacing: 16) {
+                                Image(systemName: "exclamationmark.triangle")
+                                    .font(.title2)
+                                    .foregroundColor(Color.orange)
+                                
+                                Text("ERROR: No spiritual resonance data available")
+                                    .font(.custom("Avenir Next", size: 14))
+                                    .foregroundColor(deepPurple.opacity(0.8))
+                                    .multilineTextAlignment(.center)
+                                
+                                Text("The spiritual energy analysis could not be completed")
+                                    .font(.custom("Georgia", size: 12))
+                                    .foregroundColor(deepPurple.opacity(0.6))
+                                    .multilineTextAlignment(.center)
+                                    .italic()
+                            }
+                            .padding(.vertical, 20)
+                        } else {
+                            VStack(spacing: 24) {
+                                SpiritualMeter(label: "Clarity", value: palmReading.rating.clarity, color: primaryGold)
+                                SpiritualMeter(label: "Spiritual Energy", value: palmReading.rating.spiritual_energy, color: mysticalBlue)
+                                SpiritualMeter(label: "Introspection", value: palmReading.rating.introspection, color: deepPurple)
+                            }
                         }
                     },
                     index: 3,
@@ -965,10 +1036,23 @@ struct PalmLineView: View {
                     .foregroundColor(mysticalBlue)
                     .tracking(0.5)
                 
-                Text(description)
-                    .font(.custom("Georgia", size: 15))
-                    .lineHeight(1.5)
-                    .foregroundColor(deepPurple.opacity(0.8))
+                if description.isEmpty || description.contains("NO_") {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.caption)
+                            .foregroundColor(Color.orange)
+                        
+                        Text("ERROR: Line analysis failed")
+                            .font(.custom("Avenir Next", size: 12))
+                            .foregroundColor(Color.orange.opacity(0.8))
+                            .italic()
+                    }
+                } else {
+                    Text(description)
+                        .font(.custom("Georgia", size: 15))
+                        .lineHeight(1.5)
+                        .foregroundColor(deepPurple.opacity(0.8))
+                }
             }
             
             Spacer()
