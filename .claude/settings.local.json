@@ -4,7 +4,8 @@
       "Bash(xcodebuild:*)",
       "Bash(find:*)",
       "Bash(sed:*)",
-      "Bash(swift build:*)"
+      "Bash(swift build:*)",
+      "Read(/var/folders/53/h95nnrdd4vz5r_jbqywkn5cw0000gn/T/TemporaryItems/NSIRD_screencaptureui_MB89jM/**)"
     ],
     "deny": [],
     "ask": []

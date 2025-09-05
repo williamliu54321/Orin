@@ -33,8 +33,37 @@ struct CameraView: View {
     @State private var palmReading: PalmReading?
     @State private var hasAnimated = false
     
-    let palmAnalysisPrompt = "Analyze this palm image for palm reading. Provide insights about the person's life path, personality traits, love life, career prospects, and spiritual journey based on the lines, mounts, and overall palm structure. Make it mystical and spiritual in tone, as if you're a wise palm reader with ancient knowledge."
-    
+    let palmAnalysisPrompt = """
+    Analyze this palm image and provide a detailed palm reading. Return your \
+    response in JSON format with the following structure:
+
+    {
+      "summary": "Brief overview of what the palm reveals about the person",
+      "lines": {
+        "life_line": "Analysis of the life line",
+        "heart_line": "Analysis of the heart line",
+        "head_line": "Analysis of the head line",
+        "fate_line": "Analysis of the fate line"
+      },
+      "advice": "Actionable guidance based on the palm reading",
+      "vibe": "Overall energy/mood (choose from: mystical, grounded, energetic, contemplative, intuitive, wise, adventurous, peaceful)",
+      "rating": {
+        "clarity": 1-10,
+        "spiritual_energy": 1-10,
+        "introspection": 1-10
+      }
+    }
+
+    Available vibe options: mystical, grounded, energetic, contemplative, intuitive, wise, adventurous, peaceful
+
+    Provide mystical insights while keeping the tone authentic and meaningful. \
+    Focus on guidance rather than prediction.
+
+    This prompt structure ensures you get back the exact JSON format you \
+    specified, with all the required fields including the vibe options and \
+    rating system.
+    """
+
     var body: some View {
         ZStack {
             // Background gradient matching onboarding style
