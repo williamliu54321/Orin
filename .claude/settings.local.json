@@ -3,7 +3,8 @@
     "allow": [
       "Bash(xcodebuild:*)",
       "Bash(find:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(swift build:*)"
     ],
     "deny": [],
     "ask": []
