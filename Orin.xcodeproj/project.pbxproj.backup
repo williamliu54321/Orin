@@ -15,13 +15,13 @@
 		EF4D8FFE2E690236000004B2 /* OrinTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D8FFC2E690236000004B2 /* OrinTests.swift */; };
 		EF4D90022E690238000004B2 /* OrinUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D8FFF2E690238000004B2 /* OrinUITests.swift */; };
 		EF4D90032E690238000004B2 /* OrinUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D90002E690238000004B2 /* OrinUITestsLaunchTests.swift */; };
+		EF4D90062E6903E1000004B2 /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = EF4D90052E6903E1000004B2 /* SuperwallKit */; };
+		EF4D90092E69043B000004B2 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = EF4D90082E69043B000004B2 /* FirebaseFunctions */; };
 		EF4D90122E690754000004B2 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D90112E690754000004B2 /* RootView.swift */; };
 		EF4D90152E6908C5000004B2 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D90142E6908C5000004B2 /* OnboardingFlowView.swift */; };
 		EF4D90172E690A40000004B2 /* Storekit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EF4D90162E690A40000004B2 /* Storekit.storekit */; };
 		EF4D901B2E69233F000004B2 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF4D901A2E69233F000004B2 /* GoogleService-Info.plist */; };
 		EF4D90202E692D10000004B2 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D901F2E692D10000004B2 /* CameraView.swift */; };
-		EF4D90922E6A75EC000004B2 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = EF4D90912E6A75EC000004B2 /* FirebaseFunctions */; };
-		EF4D90952E6A7680000004B2 /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = EF4D90942E6A7680000004B2 /* SuperwallKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,8 +66,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF4D90922E6A75EC000004B2 /* FirebaseFunctions in Frameworks */,
-				EF4D90952E6A7680000004B2 /* SuperwallKit in Frameworks */,
+				EF4D90062E6903E1000004B2 /* SuperwallKit in Frameworks */,
+				EF4D90092E69043B000004B2 /* FirebaseFunctions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,8 +184,8 @@
 			);
 			name = Orin;
 			packageProductDependencies = (
-				EF4D90912E6A75EC000004B2 /* FirebaseFunctions */,
-				EF4D90942E6A7680000004B2 /* SuperwallKit */,
+				EF4D90052E6903E1000004B2 /* SuperwallKit */,
+				EF4D90082E69043B000004B2 /* FirebaseFunctions */,
 			);
 			productName = Orin;
 			productReference = EF4D8FBF2E690195000004B2 /* Orin.app */;
@@ -264,8 +264,8 @@
 			mainGroup = EF4D8FB62E690195000004B2;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				EF4D90902E6A75EC000004B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				EF4D90932E6A7680000004B2 /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
+				EF4D90042E6903E1000004B2 /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
+				EF4D90072E69043B000004B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EF4D8FC02E690195000004B2 /* Products */;
@@ -684,15 +684,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		EF4D90902E6A75EC000004B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.2.0;
-			};
-		};
-		EF4D90932E6A7680000004B2 /* XCRemoteSwiftPackageReference "Superwall-iOS" */ = {
+		EF4D90042E6903E1000004B2 /* XCRemoteSwiftPackageReference "Superwall-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/superwall/Superwall-iOS";
 			requirement = {
@@ -700,18 +692,26 @@
 				minimumVersion = 4.7.0;
 			};
 		};
+		EF4D90072E69043B000004B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		EF4D90912E6A75EC000004B2 /* FirebaseFunctions */ = {
+		EF4D90052E6903E1000004B2 /* SuperwallKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = EF4D90902E6A75EC000004B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseFunctions;
-		};
-		EF4D90942E6A7680000004B2 /* SuperwallKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EF4D90932E6A7680000004B2 /* XCRemoteSwiftPackageReference "Superwall-iOS" */;
+			package = EF4D90042E6903E1000004B2 /* XCRemoteSwiftPackageReference "Superwall-iOS" */;
 			productName = SuperwallKit;
+		};
+		EF4D90082E69043B000004B2 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EF4D90072E69043B000004B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
 		};
 /* End XCSwiftPackageProductDependency section */
 
