@@ -21,7 +21,9 @@
       "Read(/Users/williamliu/Projects/OrinBackend/**)",
       "Read(/Users/williamliu/Projects/OrinBackend/**)",
       "Read(/Users/williamliu/Projects/OrinBackend/**)",
-      "Read(/Users/williamliu/Projects/OrinBackend/**)"
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Bash(grep:*)",
+      "Bash(firebase functions:log:*)"
     ],
     "deny": [],
     "ask": []
