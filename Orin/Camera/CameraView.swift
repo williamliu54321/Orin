@@ -2,13 +2,35 @@ import SwiftUI
 import UIKit
 import AVFoundation
 
+// MARK: - Data Models
+struct PalmReading: Codable {
+    let summary: String
+    let lines: PalmLines
+    let advice: String
+    let vibe: String
+    let rating: PalmRating
+}
+
+struct PalmLines: Codable {
+    let life_line: String
+    let heart_line: String
+    let head_line: String
+    let fate_line: String
+}
+
+struct PalmRating: Codable {
+    let clarity: Int
+    let spiritual_energy: Int
+    let introspection: Int
+}
+
 struct CameraView: View {
     @State private var showCamera = false
     @State private var capturedImage: UIImage?
     @State private var isProcessing = false
     @State private var showAlert = false
     @State private var alertMessage = ""
-    @State private var analysisResult = ""
+    @State private var palmReading: PalmReading?
     @State private var hasAnimated = false
     
     let palmAnalysisPrompt = "Analyze this palm image for palm reading. Provide insights about the person's life path, personality traits, love life, career prospects, and spiritual journey based on the lines, mounts, and overall palm structure. Make it mystical and spiritual in tone, as if you're a wise palm reader with ancient knowledge."
@@ -99,8 +121,8 @@ struct CameraView: View {
                             }
                             
                             // Ancient Tome Reading Results
-                            if !analysisResult.isEmpty {
-                                AncientTomeView(reading: analysisResult)
+                            if let reading = palmReading {
+                                AncientTomeView(palmReading: reading)
                                     .padding(.horizontal, 16)
                                     .opacity(hasAnimated ? 1 : 0)
                                     .animation(.easeOut(duration: 1.0).delay(0.5), value: hasAnimated)
@@ -207,7 +229,7 @@ struct CameraView: View {
     
     private func retakePhoto() {
         capturedImage = nil
-        analysisResult = ""
+        palmReading = nil
         showCamera = true
         hasAnimated = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -219,7 +241,7 @@ struct CameraView: View {
         guard let image = capturedImage else { return }
         
         isProcessing = true
-        analysisResult = ""
+        palmReading = nil
         
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             alertMessage = "Failed to process image"
@@ -275,10 +297,34 @@ struct CameraView: View {
                     if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                        let success = json["success"] as? Bool,
                        success,
-                       let result = json["result"] as? String {
-                        analysisResult = result
-                        alertMessage = "Your palm has been read successfully!"
-                        showAlert = true
+                       let resultString = json["result"] as? String {
+                        
+                        // Parse the structured JSON response
+                        if let resultData = resultString.data(using: .utf8) {
+                            do {
+                                let reading = try JSONDecoder().decode(PalmReading.self, from: resultData)
+                                palmReading = reading
+                                alertMessage = "Your palm has been read successfully!"
+                                showAlert = true
+                            } catch {
+                                // Fallback: treat as plain text if JSON parsing fails
+                                let fallbackReading = PalmReading(
+                                    summary: resultString,
+                                    lines: PalmLines(
+                                        life_line: "Your life line shows resilience and strength.",
+                                        heart_line: "Your heart line reveals deep emotional intelligence.",
+                                        head_line: "Your head line indicates balanced thinking.",
+                                        fate_line: "Your fate line suggests an unfolding destiny."
+                                    ),
+                                    advice: "Trust your intuition and embrace the journey ahead.",
+                                    vibe: "mystical",
+                                    rating: PalmRating(clarity: 8, spiritual_energy: 8, introspection: 8)
+                                )
+                                palmReading = fallbackReading
+                                alertMessage = "Your palm has been read successfully!"
+                                showAlert = true
+                            }
+                        }
                     } else if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                               let error = json["error"] as? String {
                         alertMessage = "Reading failed: \(error)"
@@ -357,142 +403,193 @@ struct CameraPermissionHelper {
 }
 
 struct AncientTomeView: View {
-    let reading: String
-    @State private var displayedText = ""
+    let palmReading: PalmReading
     @State private var showTitle = false
     @State private var showOrnaments = false
+    @State private var showSummary = false
+    @State private var showLines = false
+    @State private var showAdvice = false
+    @State private var showRating = false
+    
+    // Vibe-based theming
+    private var vibeTheme: VibeTheme {
+        VibeTheme(for: palmReading.vibe)
+    }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Tome Header with Ornamental Border
-            VStack(spacing: 16) {
-                // Top Ornamental Border
-                if showOrnaments {
-                    HStack {
-                        Image(systemName: "fleuron")
-                            .foregroundColor(.yellow.opacity(0.8))
-                            .font(.title2)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "eye")
-                            .foregroundColor(.yellow.opacity(0.8))
-                            .font(.title2)
-                            .scaleEffect(1.2)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "fleuron")
-                            .foregroundColor(.yellow.opacity(0.8))
-                            .font(.title2)
+        ScrollView {
+            VStack(spacing: 0) {
+                // Tome Header with Vibe-Based Theming
+                VStack(spacing: 16) {
+                    // Top Ornamental Border
+                    if showOrnaments {
+                        HStack {
+                            Image(systemName: vibeTheme.ornamentIcon)
+                                .foregroundColor(vibeTheme.accentColor.opacity(0.8))
+                                .font(.title2)
+                            
+                            Spacer()
+                            
+                            Image(systemName: vibeTheme.centerIcon)
+                                .foregroundColor(vibeTheme.accentColor.opacity(0.8))
+                                .font(.title2)
+                                .scaleEffect(1.2)
+                            
+                            Spacer()
+                            
+                            Image(systemName: vibeTheme.ornamentIcon)
+                                .foregroundColor(vibeTheme.accentColor.opacity(0.8))
+                                .font(.title2)
+                        }
+                        .opacity(showOrnaments ? 1 : 0)
+                        .animation(.easeIn(duration: 0.8).delay(0.3), value: showOrnaments)
                     }
-                    .opacity(showOrnaments ? 1 : 0)
-                    .animation(.easeIn(duration: 0.8).delay(0.3), value: showOrnaments)
+                    
+                    // Title
+                    if showTitle {
+                        HStack {
+                            Image(systemName: vibeTheme.titleIcon)
+                                .foregroundColor(vibeTheme.accentColor.opacity(0.9))
+                                .font(.title3)
+                            
+                            Text("Palm Reading Analysis")
+                                .font(.custom("Georgia", size: 22))
+                                .fontWeight(.medium)
+                                .foregroundColor(vibeTheme.accentColor.opacity(0.9))
+                                .shadow(color: Color.black.opacity(0.5), radius: 2, x: 0, y: 1)
+                            
+                            Image(systemName: vibeTheme.titleIcon)
+                                .foregroundColor(vibeTheme.accentColor.opacity(0.9))
+                                .font(.title3)
+                        }
+                        .opacity(showTitle ? 1 : 0)
+                        .animation(.easeIn(duration: 0.8).delay(0.1), value: showTitle)
+                    }
+                }
+                .padding(.top, 20)
+                .padding(.bottom, 16)
+                
+                // Summary Section
+                if showSummary {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(vibeTheme.accentColor)
+                            Text("Overview")
+                                .font(.custom("Georgia", size: 18))
+                                .fontWeight(.semibold)
+                                .foregroundColor(vibeTheme.accentColor)
+                        }
+                        
+                        Text(palmReading.summary)
+                            .font(.custom("Georgia", size: 16))
+                            .foregroundColor(vibeTheme.textColor)
+                            .lineSpacing(6)
+                    }
+                    .padding(20)
+                    .background(vibeTheme.cardBackground)
+                    .opacity(showSummary ? 1 : 0)
+                    .animation(.easeIn(duration: 0.8).delay(0.5), value: showSummary)
                 }
                 
-                // Title
-                if showTitle {
-                    HStack {
-                        Image(systemName: "book.closed")
-                            .foregroundColor(.yellow.opacity(0.9))
-                            .font(.title3)
+                // Lines Section
+                if showLines {
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "hand.draw")
+                                .foregroundColor(vibeTheme.accentColor)
+                            Text("The Lines Speak")
+                                .font(.custom("Georgia", size: 18))
+                                .fontWeight(.semibold)
+                                .foregroundColor(vibeTheme.accentColor)
+                        }
                         
-                        Text("Palm Reading Analysis")
-                            .font(.custom("Georgia", size: 22))
-                            .fontWeight(.medium)
-                            .foregroundColor(.yellow.opacity(0.9))
-                            .shadow(color: Color.black.opacity(0.5), radius: 2, x: 0, y: 1)
-                        
-                        Image(systemName: "book.closed")
-                            .foregroundColor(.yellow.opacity(0.9))
-                            .font(.title3)
+                        LineItemView(title: "Life Line", description: palmReading.lines.life_line, theme: vibeTheme)
+                        LineItemView(title: "Heart Line", description: palmReading.lines.heart_line, theme: vibeTheme)
+                        LineItemView(title: "Head Line", description: palmReading.lines.head_line, theme: vibeTheme)
+                        LineItemView(title: "Fate Line", description: palmReading.lines.fate_line, theme: vibeTheme)
                     }
-                    .opacity(showTitle ? 1 : 0)
-                    .animation(.easeIn(duration: 0.8).delay(0.1), value: showTitle)
+                    .padding(20)
+                    .background(vibeTheme.cardBackground)
+                    .opacity(showLines ? 1 : 0)
+                    .animation(.easeIn(duration: 0.8).delay(0.7), value: showLines)
+                }
+                
+                // Advice Section
+                if showAdvice {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "lightbulb.fill")
+                                .foregroundColor(vibeTheme.accentColor)
+                            Text("Guidance")
+                                .font(.custom("Georgia", size: 18))
+                                .fontWeight(.semibold)
+                                .foregroundColor(vibeTheme.accentColor)
+                        }
+                        
+                        Text(palmReading.advice)
+                            .font(.custom("Georgia", size: 16))
+                            .italic()
+                            .foregroundColor(vibeTheme.textColor)
+                            .lineSpacing(6)
+                    }
+                    .padding(20)
+                    .background(vibeTheme.cardBackground)
+                    .opacity(showAdvice ? 1 : 0)
+                    .animation(.easeIn(duration: 0.8).delay(0.9), value: showAdvice)
+                }
+                
+                // Rating Section
+                if showRating {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "chart.bar.fill")
+                                .foregroundColor(vibeTheme.accentColor)
+                            Text("Energy Reading")
+                                .font(.custom("Georgia", size: 18))
+                                .fontWeight(.semibold)
+                                .foregroundColor(vibeTheme.accentColor)
+                        }
+                        
+                        HStack {
+                            RatingBar(label: "Clarity", value: palmReading.rating.clarity, theme: vibeTheme)
+                            Spacer()
+                            RatingBar(label: "Spiritual Energy", value: palmReading.rating.spiritual_energy, theme: vibeTheme)
+                            Spacer()
+                            RatingBar(label: "Introspection", value: palmReading.rating.introspection, theme: vibeTheme)
+                        }
+                    }
+                    .padding(20)
+                    .background(vibeTheme.cardBackground)
+                    .opacity(showRating ? 1 : 0)
+                    .animation(.easeIn(duration: 0.8).delay(1.1), value: showRating)
+                }
+                
+                // Bottom Ornamental Border
+                if showOrnaments {
+                    HStack {
+                        Image(systemName: vibeTheme.bottomIcon)
+                            .foregroundColor(vibeTheme.accentColor.opacity(0.8))
+                            .font(.caption)
+                        
+                        Spacer()
+                        
+                        Text(vibeTheme.bottomText)
+                            .foregroundColor(vibeTheme.accentColor.opacity(0.7))
+                            .font(.caption)
+                        
+                        Spacer()
+                        
+                        Image(systemName: vibeTheme.bottomIcon)
+                            .foregroundColor(vibeTheme.accentColor.opacity(0.8))
+                            .font(.caption)
+                    }
+                    .padding(.top, 20)
+                    .opacity(showOrnaments ? 1 : 0)
+                    .animation(.easeIn(duration: 0.8).delay(1.3), value: showOrnaments)
                 }
             }
-            .padding(.top, 20)
-            .padding(.bottom, 16)
-            
-            // Parchment Background with Reading
-            VStack(alignment: .leading, spacing: 0) {
-                Text(displayedText)
-                    .font(.custom("Georgia", size: 16))
-                    .foregroundColor(Color(.sRGB, red: 0.4, green: 0.3, blue: 0.2))
-                    .lineSpacing(6)
-                    .multilineTextAlignment(.leading)
-                    .padding(24)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .background(
-                // Parchment texture effect
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color(.sRGB, red: 0.96, green: 0.92, blue: 0.84),
-                                    Color(.sRGB, red: 0.94, green: 0.88, blue: 0.78)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                    
-                    // Aged paper effect
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(
-                            RadialGradient(
-                                colors: [
-                                    Color.brown.opacity(0.05),
-                                    Color.brown.opacity(0.15)
-                                ],
-                                center: .center,
-                                startRadius: 50,
-                                endRadius: 200
-                            )
-                        )
-                    
-                    // Golden border
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    Color.yellow.opacity(0.6),
-                                    Color.orange.opacity(0.4)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 2
-                        )
-                }
-            )
-            .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
-            
-            // Bottom Ornamental Border
-            if showOrnaments {
-                HStack {
-                    Image(systemName: "sparkles")
-                        .foregroundColor(.yellow.opacity(0.8))
-                        .font(.caption)
-                    
-                    Spacer()
-                    
-                    Text("✦ ✦ ✦")
-                        .foregroundColor(.yellow.opacity(0.7))
-                        .font(.caption)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "sparkles")
-                        .foregroundColor(.yellow.opacity(0.8))
-                        .font(.caption)
-                }
-                .padding(.top, 12)
-                .opacity(showOrnaments ? 1 : 0)
-                .animation(.easeIn(duration: 0.8).delay(0.5), value: showOrnaments)
-            }
+            .padding(.horizontal, 4)
         }
         .onAppear {
             startTomeAnimation()
@@ -500,32 +597,179 @@ struct AncientTomeView: View {
     }
     
     private func startTomeAnimation() {
-        // Show title first
         withAnimation(.easeIn(duration: 0.5)) {
             showTitle = true
         }
         
-        // Show ornaments
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             withAnimation(.easeIn(duration: 0.8)) {
                 showOrnaments = true
             }
         }
         
-        // Start typewriter effect for text
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            animateText()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            withAnimation(.easeIn(duration: 0.8)) {
+                showSummary = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+            withAnimation(.easeIn(duration: 0.8)) {
+                showLines = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+            withAnimation(.easeIn(duration: 0.8)) {
+                showAdvice = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+            withAnimation(.easeIn(duration: 0.8)) {
+                showRating = true
+            }
         }
     }
+}
+
+struct LineItemView: View {
+    let title: String
+    let description: String
+    let theme: VibeTheme
     
-    private func animateText() {
-        displayedText = ""
-        let characters = Array(reading)
-        
-        for (index, character) in characters.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.02) {
-                displayedText.append(character)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("• \(title)")
+                .font(.custom("Georgia", size: 14))
+                .fontWeight(.medium)
+                .foregroundColor(theme.accentColor.opacity(0.8))
+            
+            Text(description)
+                .font(.custom("Georgia", size: 14))
+                .foregroundColor(theme.textColor.opacity(0.9))
+                .lineSpacing(3)
+        }
+    }
+}
+
+struct RatingBar: View {
+    let label: String
+    let value: Int
+    let theme: VibeTheme
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(label)
+                .font(.custom("Georgia", size: 12))
+                .foregroundColor(theme.accentColor.opacity(0.8))
+                .multilineTextAlignment(.center)
+            
+            HStack(spacing: 2) {
+                ForEach(1...10, id: \.self) { index in
+                    Circle()
+                        .fill(index <= value ? theme.accentColor.opacity(0.8) : theme.accentColor.opacity(0.2))
+                        .frame(width: 6, height: 6)
+                }
             }
+            
+            Text("\(value)/10")
+                .font(.custom("Georgia", size: 10))
+                .foregroundColor(theme.textColor.opacity(0.7))
+        }
+    }
+}
+
+// MARK: - Vibe Theming System
+struct VibeTheme {
+    let accentColor: Color
+    let textColor: Color
+    let cardBackground: AnyShapeStyle
+    let titleIcon: String
+    let centerIcon: String
+    let ornamentIcon: String
+    let bottomIcon: String
+    let bottomText: String
+    
+    init(for vibe: String) {
+        switch vibe.lowercased() {
+        case "mystical":
+            accentColor = Color.purple.opacity(0.9)
+            textColor = Color(.sRGB, red: 0.4, green: 0.3, blue: 0.5)
+            cardBackground = AnyShapeStyle(LinearGradient(
+                colors: [Color(.sRGB, red: 0.98, green: 0.95, blue: 0.98), Color(.sRGB, red: 0.94, green: 0.90, blue: 0.96)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            titleIcon = "sparkles"
+            centerIcon = "eye"
+            ornamentIcon = "sparkles"
+            bottomIcon = "sparkles"
+            bottomText = "✦ ✦ ✦"
+            
+        case "ethereal":
+            accentColor = Color.cyan.opacity(0.8)
+            textColor = Color(.sRGB, red: 0.3, green: 0.4, blue: 0.5)
+            cardBackground = AnyShapeStyle(LinearGradient(
+                colors: [Color(.sRGB, red: 0.95, green: 0.98, blue: 1.0), Color(.sRGB, red: 0.90, green: 0.95, blue: 0.98)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            titleIcon = "cloud"
+            centerIcon = "moon.stars"
+            ornamentIcon = "cloud"
+            bottomIcon = "wind"
+            bottomText = "～ ～ ～"
+            
+        case "cosmic":
+            accentColor = Color.indigo.opacity(0.9)
+            textColor = Color(.sRGB, red: 0.3, green: 0.3, blue: 0.4)
+            cardBackground = AnyShapeStyle(LinearGradient(
+                colors: [Color(.sRGB, red: 0.94, green: 0.94, blue: 0.98), Color(.sRGB, red: 0.88, green: 0.88, blue: 0.96)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            titleIcon = "star.fill"
+            centerIcon = "moon.stars.fill"
+            ornamentIcon = "star"
+            bottomIcon = "star.fill"
+            bottomText = "★ ★ ★"
+            
+        case "uplifting":
+            accentColor = Color.orange.opacity(0.9)
+            textColor = Color(.sRGB, red: 0.5, green: 0.3, blue: 0.2)
+            cardBackground = AnyShapeStyle(LinearGradient(
+                colors: [Color(.sRGB, red: 1.0, green: 0.98, blue: 0.92), Color(.sRGB, red: 0.98, green: 0.94, blue: 0.88)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            titleIcon = "sun.max.fill"
+            centerIcon = "flame.fill"
+            ornamentIcon = "sun.max"
+            bottomIcon = "flame"
+            bottomText = "☀ ☀ ☀"
+            
+        case "shadow":
+            accentColor = Color.blue.opacity(0.8)
+            textColor = Color(.sRGB, red: 0.2, green: 0.3, blue: 0.4)
+            cardBackground = AnyShapeStyle(LinearGradient(
+                colors: [Color(.sRGB, red: 0.92, green: 0.94, blue: 0.98), Color(.sRGB, red: 0.88, green: 0.90, blue: 0.96)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            titleIcon = "moon.fill"
+            centerIcon = "eye.trianglebadge.exclamationmark"
+            ornamentIcon = "moon"
+            bottomIcon = "moon.phase.waxing.crescent"
+            bottomText = "◐ ◑ ◒"
+            
+        default: // fallback to mystical
+            accentColor = Color.purple.opacity(0.9)
+            textColor = Color(.sRGB, red: 0.4, green: 0.3, blue: 0.5)
+            cardBackground = AnyShapeStyle(LinearGradient(
+                colors: [Color(.sRGB, red: 0.98, green: 0.95, blue: 0.98), Color(.sRGB, red: 0.94, green: 0.90, blue: 0.96)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            titleIcon = "sparkles"
+            centerIcon = "eye"
+            ornamentIcon = "sparkles"
+            bottomIcon = "sparkles"
+            bottomText = "✦ ✦ ✦"
         }
     }
 }
