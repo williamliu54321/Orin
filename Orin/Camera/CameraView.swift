@@ -171,17 +171,9 @@ struct CameraView: View {
 
     var body: some View {
         ZStack {
-            // Background gradient matching onboarding style
-            LinearGradient(
-                colors: [
-                    Color.purple.opacity(0.3),
-                    Color.blue.opacity(0.4),
-                    Color.indigo.opacity(0.5)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Premium mystical background
+            MysticalCameraBackground()
+                .ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: 24) {
