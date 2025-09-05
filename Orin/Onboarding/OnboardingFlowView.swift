@@ -222,6 +222,12 @@ class OnboardingState: ObservableObject {
         }
     }
     
+    func previousQuestion() {
+        if currentQuestionIndex > 0 {
+            currentQuestionIndex -= 1
+        }
+    }
+    
     func startPersonalization() {
         showPersonalizationLoading = true
     }
@@ -248,9 +254,52 @@ struct OnboardingFlowView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Mystical background matching camera view
+                // Enhanced mystical background 
                 MysticalCameraBackground()
                     .ignoresSafeArea()
+                
+                // Floating mystical ornaments for onboarding
+                ForEach(0..<12, id: \.self) { index in
+                    Image(systemName: ["moon.stars", "sparkles", "star", "circle.dotted", "plus.circle", "diamond"][index % 6])
+                        .font(.system(size: CGFloat.random(in: 16...28)))
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(Double.random(in: 0.3...0.6)))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4), radius: 6)
+                        .position(
+                            x: CGFloat.random(in: 30...geometry.size.width-30),
+                            y: CGFloat.random(in: 100...geometry.size.height-100)
+                        )
+                        .opacity(0.7)
+                        .scaleEffect(0.8)
+                }
+                
+                // Corner mystical decorations
+                VStack {
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .font(.title2)
+                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5))
+                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                        Spacer()
+                        Image(systemName: "moon.stars.fill")
+                            .font(.title2)
+                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5))
+                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                    }
+                    Spacer()
+                    HStack {
+                        Image(systemName: "star")
+                            .font(.title2)
+                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5))
+                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                        Spacer()
+                        Image(systemName: "circle.dotted")
+                            .font(.title2)
+                            .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5))
+                            .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                    }
+                }
+                .padding(.horizontal, 30)
+                .padding(.vertical, 50)
                 
                 if onboardingState.isComplete {
                     ReadyToBeginView(onboardingState: onboardingState, onFinish: onFinish)
@@ -290,24 +339,92 @@ struct TextInputQuestionView: View {
     
     var body: some View {
         ZStack {
+            // Mystical decorative elements for text input
+            VStack {
+                HStack {
+                    Image(systemName: "quote.opening")
+                        .font(.title2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                    Spacer()
+                    Image(systemName: "heart.text.square")
+                        .font(.title2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                }
+                Spacer()
+                HStack {
+                    Image(systemName: "pencil.and.scribble")
+                        .font(.title2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                    Spacer()
+                    Image(systemName: "quote.closing")
+                        .font(.title2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                }
+            }
+            .padding(.horizontal, 30)
+            .padding(.vertical, 100)
+            
             // Main content
             VStack(spacing: 0) {
-                // Progress indicator
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        ForEach(0..<onboardingState.questions.count, id: \.self) { index in
+                // Back shape at top
+                HStack {
+                    if onboardingState.currentQuestionIndex > 0 {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                onboardingState.previousQuestion()
+                            }
+                        }) {
                             Circle()
-                                .fill(index <= onboardingState.currentQuestionIndex ? 
-                                      Color.white : Color.white.opacity(0.3))
-                                .frame(width: 8, height: 8)
-                                .scaleEffect(index == onboardingState.currentQuestionIndex ? 1.2 : 1.0)
-                                .animation(.spring(response: 0.6, dampingFraction: 0.8), value: onboardingState.currentQuestionIndex)
+                                .fill(Color.black.opacity(0.3))
+                                .frame(width: 44, height: 44)
+                                .overlay(
+                                    Image(systemName: "chevron.left")
+                                        .font(.title3)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.white.opacity(0.8))
+                                )
+                                .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                     }
-                    .frame(maxWidth: .infinity)
+                    Spacer()
                 }
-                .padding(.top, 60)
-                .padding(.bottom, 30)
+                .padding(.horizontal, 32)
+                .padding(.top, 20)
+                
+                // Step progress indicator
+                HStack(spacing: 8) {
+                    Image(systemName: "star.fill")
+                        .font(.caption2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                    
+                    Rectangle()
+                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .frame(width: 40, height: 1)
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 2)
+                    
+                    Text("STEP \(onboardingState.currentQuestionIndex + 1) OF \(onboardingState.questions.count)")
+                        .font(.caption2)
+                        .tracking(1.2)
+                        .foregroundColor(.white.opacity(0.8))
+                        .shadow(color: Color.black.opacity(0.4), radius: 3)
+                    
+                    Rectangle()
+                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .frame(width: 40, height: 1)
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 2)
+                    
+                    Image(systemName: "star.fill")
+                        .font(.caption2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                }
+                .padding(.top, 30)
+                .padding(.bottom, 20)
                 
                 // Question and subtitle
                 VStack(spacing: 16) {
@@ -412,24 +529,92 @@ struct OnboardingQuestionView: View {
     
     var body: some View {
         ZStack {
+            // Mystical decorative elements for multiple choice
+            VStack {
+                HStack {
+                    Image(systemName: "questionmark.diamond")
+                        .font(.title2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                    Spacer()
+                    Image(systemName: "list.bullet.circle")
+                        .font(.title2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                }
+                Spacer()
+                HStack {
+                    Image(systemName: "hand.point.up.left")
+                        .font(.title2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                    Spacer()
+                    Image(systemName: "checkmark.seal")
+                        .font(.title2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 6)
+                }
+            }
+            .padding(.horizontal, 30)
+            .padding(.vertical, 100)
+            
             // Main content
             VStack(spacing: 0) {
-                // Progress indicator
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        ForEach(0..<onboardingState.questions.count, id: \.self) { index in
+                // Back shape at top
+                HStack {
+                    if onboardingState.currentQuestionIndex > 0 {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                onboardingState.previousQuestion()
+                            }
+                        }) {
                             Circle()
-                                .fill(index <= onboardingState.currentQuestionIndex ? 
-                                      Color.white : Color.white.opacity(0.3))
-                                .frame(width: 8, height: 8)
-                                .scaleEffect(index == onboardingState.currentQuestionIndex ? 1.2 : 1.0)
-                                .animation(.spring(response: 0.6, dampingFraction: 0.8), value: onboardingState.currentQuestionIndex)
+                                .fill(Color.black.opacity(0.3))
+                                .frame(width: 44, height: 44)
+                                .overlay(
+                                    Image(systemName: "chevron.left")
+                                        .font(.title3)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.white.opacity(0.8))
+                                )
+                                .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                     }
-                    .frame(maxWidth: .infinity)
+                    Spacer()
                 }
-                .padding(.top, 60)
-                .padding(.bottom, 30)
+                .padding(.horizontal, 32)
+                .padding(.top, 20)
+                
+                // Step progress indicator
+                HStack(spacing: 8) {
+                    Image(systemName: "star.fill")
+                        .font(.caption2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                    
+                    Rectangle()
+                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .frame(width: 40, height: 1)
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 2)
+                    
+                    Text("STEP \(onboardingState.currentQuestionIndex + 1) OF \(onboardingState.questions.count)")
+                        .font(.caption2)
+                        .tracking(1.2)
+                        .foregroundColor(.white.opacity(0.8))
+                        .shadow(color: Color.black.opacity(0.4), radius: 3)
+                    
+                    Rectangle()
+                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .frame(width: 40, height: 1)
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 2)
+                    
+                    Image(systemName: "star.fill")
+                        .font(.caption2)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
+                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                }
+                .padding(.top, 30)
+                .padding(.bottom, 20)
                 
                 // Question and subtitle
                 VStack(spacing: 16) {
@@ -514,63 +699,125 @@ struct OptionButton: View {
     let isSelected: Bool
     let onTap: () -> Void
     
+    @State private var glowIntensity: Double = 0.5
+    
+    private let mysticalGold = Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13)
+    
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 12) {
-                Circle()
-                    .fill(isSelected ? Color.white : Color.clear)
-                    .frame(width: 24, height: 24)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white, lineWidth: 2)
-                    )
-                    .overlay(
-                        Circle()
-                            .fill(Color(red: 0.4, green: 0.3, blue: 0.6))
-                            .frame(width: 12, height: 12)
+            HStack(spacing: 16) {
+                // Enhanced mystical selection indicator
+                ZStack {
+                    Circle()
+                        .fill(
+                            isSelected ? 
+                            LinearGradient(
+                                gradient: Gradient(colors: [mysticalGold, mysticalGold.opacity(0.7)]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ) :
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.clear, Color.clear]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 28, height: 28)
+                        .shadow(color: isSelected ? mysticalGold.opacity(0.8) : Color.clear, radius: 8, x: 0, y: 0)
+                    
+                    Circle()
+                        .stroke(
+                            isSelected ? mysticalGold : Color.white.opacity(0.6), 
+                            lineWidth: isSelected ? 3 : 2
+                        )
+                        .frame(width: 28, height: 28)
+                        .shadow(color: isSelected ? mysticalGold.opacity(0.6) : Color.clear, radius: 4, x: 0, y: 0)
+                    
+                    if isSelected {
+                        Image(systemName: "checkmark")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .scaleEffect(isSelected ? 1.0 : 0.5)
                             .opacity(isSelected ? 1 : 0)
-                            .scaleEffect(isSelected ? 1 : 0.5)
-                            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
-                    )
+                    }
+                }
+                .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isSelected)
                 
+                // Enhanced emoji with mystical glow
                 Text(option.emoji)
                     .font(.title2)
                     .scaleEffect(isSelected ? 1.2 : 1.0)
+                    .shadow(color: isSelected ? mysticalGold.opacity(0.5) : Color.clear, radius: 6, x: 0, y: 0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
                 
+                // Enhanced text with mystical styling
                 Text(option.text)
                     .font(.body)
                     .fontWeight(isSelected ? .semibold : .medium)
-                    .foregroundColor(isSelected ? Color(red: 0.1, green: 0.05, blue: 0.2) : Color(red: 0.2, green: 0.15, blue: 0.3))
+                    .foregroundColor(.white)
                     .multilineTextAlignment(.leading)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
+                    .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 1)
                 
                 Spacer()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
             .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(
-                        isSelected ? 
-                        Color.white.opacity(0.95) : 
-                        Color.white.opacity(0.75)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(
-                                isSelected ? 
-                                Color.white : 
-                                Color.white.opacity(0.5),
-                                lineWidth: isSelected ? 3 : 1
+            .background {
+                ZStack {
+                    // Base background with mystical gradient
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(
+                            isSelected ?
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.black.opacity(0.4),
+                                    Color.black.opacity(0.6),
+                                    mysticalGold.opacity(0.1)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ) :
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.black.opacity(0.2),
+                                    Color.black.opacity(0.4)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
-                    )
+                        )
+                    
+                    // Border with mystical glow
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(
+                            isSelected ? 
+                            LinearGradient(
+                                gradient: Gradient(colors: [mysticalGold, mysticalGold.opacity(0.6)]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ) :
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: isSelected ? 2 : 1
+                        )
+                        .shadow(color: isSelected ? mysticalGold.opacity(0.5) : Color.clear, radius: 12, x: 0, y: 0)
+                }
+            }
+            .scaleEffect(isSelected ? 1.02 : 1.0)
+            .shadow(
+                color: isSelected ? mysticalGold.opacity(0.3) : Color.black.opacity(0.2), 
+                radius: isSelected ? 15 : 5, 
+                x: 0, 
+                y: isSelected ? 8 : 4
             )
-            .scaleEffect(isSelected ? 1.03 : 1.0)
-            .shadow(color: isSelected ? Color.white.opacity(0.5) : Color.clear, radius: 10, x: 0, y: 0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -870,21 +1117,25 @@ struct PersonalizationLoadingView: View {
                 Spacer()
             }
             
-            // Floating particles
-            ForEach(0..<12) { index in
-                Circle()
-                    .fill(Color.white.opacity(0.3))
-                    .frame(width: CGFloat.random(in: 4...8))
-                    .position(
-                        x: CGFloat.random(in: 50...350),
-                        y: showSparkles ? CGFloat.random(in: 100...700) : CGFloat.random(in: 100...700) + 50
-                    )
-                    .animation(
-                        Animation.easeInOut(duration: Double.random(in: 3...5))
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(index) * 0.2),
-                        value: showSparkles
-                    )
+            // Floating particles - vertically centered
+            GeometryReader { geometry in
+                ForEach(0..<12) { index in
+                    Circle()
+                        .fill(Color.white.opacity(0.3))
+                        .frame(width: CGFloat.random(in: 4...8))
+                        .position(
+                            x: CGFloat.random(in: 50...geometry.size.width-50),
+                            y: showSparkles ? 
+                                CGFloat.random(in: geometry.size.height*0.2...geometry.size.height*0.8) : 
+                                CGFloat.random(in: geometry.size.height*0.2...geometry.size.height*0.8) + 20
+                        )
+                        .animation(
+                            Animation.easeInOut(duration: Double.random(in: 3...5))
+                                .repeatForever(autoreverses: true)
+                                .delay(Double(index) * 0.2),
+                            value: showSparkles
+                        )
+                }
             }
         }
         .onAppear {
