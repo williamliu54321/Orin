@@ -374,7 +374,7 @@ struct TextInputQuestionView: View {
                 HStack {
                     if onboardingState.currentQuestionIndex > 0 {
                         Button(action: {
-                            withAnimation(.easeInOut(duration: 0.5)) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 onboardingState.previousQuestion()
                             }
                         }) {
@@ -389,6 +389,8 @@ struct TextInputQuestionView: View {
                                 )
                                 .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
+                        .accessibilityLabel("Back")
+                        .accessibilityHint("Returns to the previous question")
                     }
                     Spacer()
                 }
@@ -399,32 +401,29 @@ struct TextInputQuestionView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "star.fill")
                         .font(.caption2)
-                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
-                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.7))
                     
                     Rectangle()
-                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5))
                         .frame(width: 40, height: 1)
-                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 2)
                     
                     Text("STEP \(onboardingState.currentQuestionIndex + 1) OF \(onboardingState.questions.count)")
                         .font(.caption2)
                         .tracking(1.2)
-                        .foregroundColor(.white.opacity(0.8))
-                        .shadow(color: Color.black.opacity(0.4), radius: 3)
+                        .foregroundColor(.white.opacity(0.9))
                     
                     Rectangle()
-                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5))
                         .frame(width: 40, height: 1)
-                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 2)
                     
                     Image(systemName: "star.fill")
                         .font(.caption2)
-                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
-                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.7))
                 }
                 .padding(.top, 30)
                 .padding(.bottom, 20)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Progress: Step \(onboardingState.currentQuestionIndex + 1) of \(onboardingState.questions.count)")
                 
                 // Question and subtitle
                 VStack(spacing: 16) {
@@ -495,7 +494,7 @@ struct TextInputQuestionView: View {
                     action: {
                         if !textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             isTextFieldFocused = false
-                            withAnimation(.easeInOut(duration: 0.5)) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 onboardingState.nextQuestion()
                             }
                         }
@@ -503,7 +502,7 @@ struct TextInputQuestionView: View {
                 )
                 .disabled(textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 .scaleEffect(!textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 1.0 : 0.95)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: textInput)
+                .animation(.easeInOut(duration: 0.2), value: textInput)
                 .padding(.bottom, 50)
             }
         }
@@ -564,7 +563,7 @@ struct OnboardingQuestionView: View {
                 HStack {
                     if onboardingState.currentQuestionIndex > 0 {
                         Button(action: {
-                            withAnimation(.easeInOut(duration: 0.5)) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 onboardingState.previousQuestion()
                             }
                         }) {
@@ -579,6 +578,8 @@ struct OnboardingQuestionView: View {
                                 )
                                 .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
+                        .accessibilityLabel("Back")
+                        .accessibilityHint("Returns to the previous question")
                     }
                     Spacer()
                 }
@@ -589,32 +590,29 @@ struct OnboardingQuestionView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "star.fill")
                         .font(.caption2)
-                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
-                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.7))
                     
                     Rectangle()
-                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5))
                         .frame(width: 40, height: 1)
-                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 2)
                     
                     Text("STEP \(onboardingState.currentQuestionIndex + 1) OF \(onboardingState.questions.count)")
                         .font(.caption2)
                         .tracking(1.2)
-                        .foregroundColor(.white.opacity(0.8))
-                        .shadow(color: Color.black.opacity(0.4), radius: 3)
+                        .foregroundColor(.white.opacity(0.9))
                     
                     Rectangle()
-                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.4))
+                        .fill(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.5))
                         .frame(width: 40, height: 1)
-                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.3), radius: 2)
                     
                     Image(systemName: "star.fill")
                         .font(.caption2)
-                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.6))
-                        .shadow(color: Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13), radius: 3)
+                        .foregroundColor(Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13).opacity(0.7))
                 }
                 .padding(.top, 30)
                 .padding(.bottom, 20)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Progress: Step \(onboardingState.currentQuestionIndex + 1) of \(onboardingState.questions.count)")
                 
                 // Question and subtitle
                 VStack(spacing: 16) {
@@ -647,7 +645,7 @@ struct OnboardingQuestionView: View {
                                 option: option,
                                 isSelected: selectedOption == option.id,
                                 onTap: {
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
                                         selectedOption = option.id
                                     }
                                     onboardingState.selectAnswer(questionId: question.id, optionId: option.id)
@@ -675,7 +673,7 @@ struct OnboardingQuestionView: View {
                     isPrimary: selectedOption != nil,
                     action: {
                         if selectedOption != nil {
-                            withAnimation(.easeInOut(duration: 0.5)) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 onboardingState.nextQuestion()
                             }
                         }
@@ -683,7 +681,7 @@ struct OnboardingQuestionView: View {
                 )
                 .disabled(selectedOption == nil)
                 .scaleEffect(selectedOption != nil ? 1.0 : 0.95)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedOption)
+                .animation(.easeInOut(duration: 0.2), value: selectedOption)
                 .padding(.bottom, 50)
             }
         }
@@ -742,14 +740,13 @@ struct OptionButton: View {
                             .opacity(isSelected ? 1 : 0)
                     }
                 }
-                .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isSelected)
+                .animation(.easeInOut(duration: 0.2), value: isSelected)
                 
-                // Enhanced emoji with mystical glow
+                // Enhanced emoji
                 Text(option.emoji)
                     .font(.title2)
-                    .scaleEffect(isSelected ? 1.2 : 1.0)
-                    .shadow(color: isSelected ? mysticalGold.opacity(0.5) : Color.clear, radius: 6, x: 0, y: 0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
+                    .scaleEffect(isSelected ? 1.1 : 1.0)
+                    .animation(.easeInOut(duration: 0.2), value: isSelected)
                 
                 // Enhanced text with mystical styling
                 Text(option.text)
@@ -766,60 +763,34 @@ struct OptionButton: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
             .frame(maxWidth: .infinity)
-            .background {
-                ZStack {
-                    // Base background with mystical gradient
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(
-                            isSelected ?
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.black.opacity(0.4),
-                                    Color.black.opacity(0.6),
-                                    mysticalGold.opacity(0.1)
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ) :
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.black.opacity(0.2),
-                                    Color.black.opacity(0.4)
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(
+                        isSelected ?
+                        Color.black.opacity(0.5) :
+                        Color.black.opacity(0.3)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(
+                                isSelected ? mysticalGold : Color.white.opacity(0.3),
+                                lineWidth: isSelected ? 2 : 1
                             )
-                        )
-                    
-                    // Border with mystical glow
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(
-                            isSelected ? 
-                            LinearGradient(
-                                gradient: Gradient(colors: [mysticalGold, mysticalGold.opacity(0.6)]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ) :
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(0.3), Color.white.opacity(0.1)]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: isSelected ? 2 : 1
-                        )
-                        .shadow(color: isSelected ? mysticalGold.opacity(0.5) : Color.clear, radius: 12, x: 0, y: 0)
-                }
-            }
-            .scaleEffect(isSelected ? 1.02 : 1.0)
-            .shadow(
-                color: isSelected ? mysticalGold.opacity(0.3) : Color.black.opacity(0.2), 
-                radius: isSelected ? 15 : 5, 
-                x: 0, 
-                y: isSelected ? 8 : 4
+                    )
             )
-            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
+            .scaleEffect(isSelected ? 1.01 : 1.0)
+            .shadow(
+                color: isSelected ? mysticalGold.opacity(0.2) : Color.black.opacity(0.1), 
+                radius: isSelected ? 8 : 3, 
+                x: 0, 
+                y: isSelected ? 4 : 2
+            )
+            .animation(.easeInOut(duration: 0.25), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel(option.text)
+        .accessibilityHint(isSelected ? "Selected option" : "Double tap to select this option")
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }
 
