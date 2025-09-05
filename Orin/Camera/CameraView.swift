@@ -2,13 +2,71 @@ import SwiftUI
 import UIKit
 import AVFoundation
 
+// MARK: - View Extensions
+extension View {
+    func lineHeight(_ lineHeight: Double) -> some View {
+        self.lineSpacing(lineHeight * 16 - 16) // Approximate line height calculation
+    }
+    
+    func fontStyle(_ style: FontStyle) -> some View {
+        switch style {
+        case .italic:
+            return self.italic()
+        case .normal:
+            return self.italic(false)
+        }
+    }
+}
+
+enum FontStyle {
+    case normal
+    case italic
+}
+
 // MARK: - Data Models
 struct PalmReading: Codable {
     let summary: String
     let lines: PalmLines
     let advice: String
-    let vibe: String
     let rating: PalmRating
+    
+    // Manual initializer for fallback creation
+    init(summary: String, lines: PalmLines, advice: String, rating: PalmRating) {
+        self.summary = summary
+        self.lines = lines
+        self.advice = advice
+        self.rating = rating
+    }
+    
+    // Custom decoder to handle various response formats
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Decode with fallback values that are more obvious for debugging
+        summary = try container.decodeIfPresent(String.self, forKey: .summary) ?? "NO_SUMMARY_PROVIDED"
+        advice = try container.decodeIfPresent(String.self, forKey: .advice) ?? "NO_ADVICE_PROVIDED"
+        
+        // Try to decode lines, use debug defaults if missing
+        if let decodedLines = try container.decodeIfPresent(PalmLines.self, forKey: .lines) {
+            lines = decodedLines
+        } else {
+            print("⚠️ Lines field missing from JSON")
+            lines = PalmLines(
+                life_line: "NO_LIFE_LINE_PROVIDED",
+                heart_line: "NO_HEART_LINE_PROVIDED",
+                head_line: "NO_HEAD_LINE_PROVIDED",
+                fate_line: "NO_FATE_LINE_PROVIDED"
+            )
+        }
+        
+        // Try to decode rating, use defaults if missing
+        if let decodedRating = try container.decodeIfPresent(PalmRating.self, forKey: .rating) {
+            rating = decodedRating
+        } else {
+            print("⚠️ Rating field missing from JSON")
+            rating = PalmRating(clarity: 5, spiritual_energy: 5, introspection: 5)
+        }
+    }
 }
 
 struct PalmLines: Codable {
@@ -16,12 +74,68 @@ struct PalmLines: Codable {
     let heart_line: String
     let head_line: String
     let fate_line: String
+    
+    init(life_line: String, heart_line: String, head_line: String, fate_line: String) {
+        self.life_line = life_line
+        self.heart_line = heart_line
+        self.head_line = head_line
+        self.fate_line = fate_line
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        life_line = try container.decodeIfPresent(String.self, forKey: .life_line) ?? "NO_LIFE_LINE"
+        heart_line = try container.decodeIfPresent(String.self, forKey: .heart_line) ?? "NO_HEART_LINE"
+        head_line = try container.decodeIfPresent(String.self, forKey: .head_line) ?? "NO_HEAD_LINE"
+        fate_line = try container.decodeIfPresent(String.self, forKey: .fate_line) ?? "NO_FATE_LINE"
+        
+        print("Decoded lines: life='\(life_line)', heart='\(heart_line)', head='\(head_line)', fate='\(fate_line)'")
+    }
 }
 
 struct PalmRating: Codable {
     let clarity: Int
     let spiritual_energy: Int
     let introspection: Int
+    
+    init(clarity: Int, spiritual_energy: Int, introspection: Int) {
+        self.clarity = clarity
+        self.spiritual_energy = spiritual_energy
+        self.introspection = introspection
+    }
+    
+    // Custom decoder to handle both Int and String values
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Try to decode as Int first, then as String
+        if let clarityInt = try? container.decode(Int.self, forKey: .clarity) {
+            clarity = clarityInt
+        } else if let clarityString = try? container.decode(String.self, forKey: .clarity),
+                  let clarityInt = Int(clarityString) {
+            clarity = clarityInt
+        } else {
+            clarity = 5 // Default value
+        }
+        
+        if let spiritualInt = try? container.decode(Int.self, forKey: .spiritual_energy) {
+            spiritual_energy = spiritualInt
+        } else if let spiritualString = try? container.decode(String.self, forKey: .spiritual_energy),
+                  let spiritualInt = Int(spiritualString) {
+            spiritual_energy = spiritualInt
+        } else {
+            spiritual_energy = 5 // Default value
+        }
+        
+        if let introspectionInt = try? container.decode(Int.self, forKey: .introspection) {
+            introspection = introspectionInt
+        } else if let introspectionString = try? container.decode(String.self, forKey: .introspection),
+                  let introspectionInt = Int(introspectionString) {
+            introspection = introspectionInt
+        } else {
+            introspection = 5 // Default value
+        }
+    }
 }
 
 struct CameraView: View {
@@ -34,8 +148,8 @@ struct CameraView: View {
     @State private var hasAnimated = false
     
     let palmAnalysisPrompt = """
-    Analyze this palm image and provide a detailed palm reading. Return your \
-    response in JSON format with the following structure:
+    Analyze this palm image and provide a detailed palm reading. Return your
+    response in JSON format with the following structure. If there is any reason that you can't give a repsonse make it blank for all the options:
 
     {
       "summary": "Brief overview of what the palm reveals about the person",
@@ -46,7 +160,6 @@ struct CameraView: View {
         "fate_line": "Analysis of the fate line"
       },
       "advice": "Actionable guidance based on the palm reading",
-      "vibe": "Overall energy/mood (choose from: mystical, grounded, energetic, contemplative, intuitive, wise, adventurous, peaceful)",
       "rating": {
         "clarity": 1-10,
         "spiritual_energy": 1-10,
@@ -54,14 +167,8 @@ struct CameraView: View {
       }
     }
 
-    Available vibe options: mystical, grounded, energetic, contemplative, intuitive, wise, adventurous, peaceful
-
-    Provide mystical insights while keeping the tone authentic and meaningful. \
+    Provide mystical insights while keeping the tone authentic and meaningful.
     Focus on guidance rather than prediction.
-
-    This prompt structure ensures you get back the exact JSON format you \
-    specified, with all the required fields including the vibe options and \
-    rating system.
     """
 
     var body: some View {
@@ -322,48 +429,162 @@ struct CameraView: View {
                     return
                 }
                 
+                // First, let's see exactly what we received
+                if let rawResponse = String(data: data, encoding: .utf8) {
+                    print("=== RAW API RESPONSE ===")
+                    print(rawResponse)
+                    print("========================")
+                    
+                    // Also save to a file for inspection
+                    let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                    let debugPath = documentsPath.appendingPathComponent("debug_response.txt")
+                    try? rawResponse.write(to: debugPath, atomically: true, encoding: .utf8)
+                    print("Debug response saved to: \(debugPath)")
+                }
+                
                 do {
-                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                       let success = json["success"] as? Bool,
-                       success,
-                       let resultString = json["result"] as? String {
+                    // Try to parse the outer JSON envelope first
+                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                        print("=== PARSED OUTER JSON ===")
+                        print("Keys: \(json.keys)")
                         
-                        // Parse the structured JSON response
-                        if let resultData = resultString.data(using: .utf8) {
-                            do {
-                                let reading = try JSONDecoder().decode(PalmReading.self, from: resultData)
-                                palmReading = reading
-                                alertMessage = "Your palm has been read successfully!"
-                                showAlert = true
-                            } catch {
-                                // Fallback: treat as plain text if JSON parsing fails
-                                let fallbackReading = PalmReading(
-                                    summary: resultString,
-                                    lines: PalmLines(
-                                        life_line: "Your life line shows resilience and strength.",
-                                        heart_line: "Your heart line reveals deep emotional intelligence.",
-                                        head_line: "Your head line indicates balanced thinking.",
-                                        fate_line: "Your fate line suggests an unfolding destiny."
-                                    ),
-                                    advice: "Trust your intuition and embrace the journey ahead.",
-                                    vibe: "mystical",
-                                    rating: PalmRating(clarity: 8, spiritual_energy: 8, introspection: 8)
-                                )
-                                palmReading = fallbackReading
-                                alertMessage = "Your palm has been read successfully!"
-                                showAlert = true
+                        if let success = json["success"] as? Bool, success,
+                           let resultString = json["result"] as? String {
+                            
+                            print("=== RESULT STRING (RAW) ===")
+                            print(resultString)
+                            print("===========================")
+                            
+                            // Try multiple cleaning strategies
+                            var cleanedString = resultString
+                            
+                            // Strategy 1: Remove markdown code blocks
+                            cleanedString = cleanedString
+                                .replacingOccurrences(of: "```json", with: "")
+                                .replacingOccurrences(of: "```JSON", with: "")
+                                .replacingOccurrences(of: "```", with: "")
+                            
+                            // Strategy 2: Find JSON object within the string
+                            if let startIndex = cleanedString.firstIndex(of: "{"),
+                               let endIndex = cleanedString.lastIndex(of: "}") {
+                                let nextIndex = cleanedString.index(after: endIndex)
+                                cleanedString = String(cleanedString[startIndex..<nextIndex])
                             }
+                            
+                            // Strategy 3: Clean whitespace and newlines
+                            cleanedString = cleanedString.trimmingCharacters(in: .whitespacesAndNewlines)
+                            
+                            print("=== CLEANED STRING ===")
+                            print(cleanedString)
+                            print("======================")
+                            
+                            // Try to parse the JSON
+                            if let resultData = cleanedString.data(using: .utf8) {
+                                do {
+                                    // First try with our custom decoder
+                                    let reading = try JSONDecoder().decode(PalmReading.self, from: resultData)
+                                    
+                                    // Debug: Log what we actually parsed
+                                    print("=== PARSED PALM READING ===")
+                                    print("Summary: '\(reading.summary)'")
+                                    print("Life Line: '\(reading.lines.life_line)'")
+                                    print("Heart Line: '\(reading.lines.heart_line)'")
+                                    print("Head Line: '\(reading.lines.head_line)'")
+                                    print("Fate Line: '\(reading.lines.fate_line)'")
+                                    print("Advice: '\(reading.advice)'")
+                                    print("Clarity: \(reading.rating.clarity)")
+                                    print("Spiritual Energy: \(reading.rating.spiritual_energy)")
+                                    print("Introspection: \(reading.rating.introspection)")
+                                    print("=============================")
+                                    
+                                    // Check if all fields are empty
+                                    let isEmpty = reading.summary.isEmpty && 
+                                                 reading.lines.life_line.isEmpty && 
+                                                 reading.lines.heart_line.isEmpty && 
+                                                 reading.lines.head_line.isEmpty && 
+                                                 reading.lines.fate_line.isEmpty && 
+                                                 reading.advice.isEmpty
+                                    
+                                    if isEmpty {
+                                        print("⚠️ All fields are empty - creating fallback reading")
+                                        let fallbackReading = PalmReading(
+                                            summary: "Your palm reveals a unique spiritual journey filled with potential and wisdom. The lines speak of someone with deep intuition and strong life force energy.",
+                                            lines: PalmLines(
+                                                life_line: "Your life line shows remarkable vitality and longevity. It suggests a person with strong physical constitution and resilience in facing life's challenges.",
+                                                heart_line: "The heart line indicates a deeply emotional and loving nature. You have the capacity for profound connections and lasting relationships.",
+                                                head_line: "Your head line reveals excellent mental clarity and analytical abilities. You approach problems with both logic and creativity.",
+                                                fate_line: "The fate line suggests an individual who creates their own destiny. Your path may be unconventional but ultimately rewarding."
+                                            ),
+                                            advice: "Trust in your inner wisdom and intuition. The universe has given you unique gifts - embrace them with confidence and share your light with others.",
+                                            rating: PalmRating(clarity: 8, spiritual_energy: 9, introspection: 7)
+                                        )
+                                        palmReading = fallbackReading
+                                    } else {
+                                        palmReading = reading
+                                    }
+                                    
+                                    alertMessage = "Your palm has been read successfully!"
+                                    showAlert = true
+                                } catch {
+                                    print("=== JSON DECODE ERROR ===")
+                                    print("Error: \(error)")
+                                    
+                                    // Try to parse as generic JSON to see structure
+                                    if let genericJSON = try? JSONSerialization.jsonObject(with: resultData) as? [String: Any] {
+                                        print("=== GENERIC JSON STRUCTURE ===")
+                                        print("Keys: \(genericJSON.keys)")
+                                        for (key, value) in genericJSON {
+                                            print("\(key): \(type(of: value)) = \(value)")
+                                        }
+                                        
+                                        // Try manual parsing as last resort
+                                        let manualReading = PalmReading(
+                                            summary: genericJSON["summary"] as? String ?? "Unable to read palm clearly",
+                                            lines: PalmLines(
+                                                life_line: (genericJSON["lines"] as? [String: Any])?["life_line"] as? String ?? "",
+                                                heart_line: (genericJSON["lines"] as? [String: Any])?["heart_line"] as? String ?? "",
+                                                head_line: (genericJSON["lines"] as? [String: Any])?["head_line"] as? String ?? "",
+                                                fate_line: (genericJSON["lines"] as? [String: Any])?["fate_line"] as? String ?? ""
+                                            ),
+                                            advice: genericJSON["advice"] as? String ?? "Trust your intuition",
+                                            rating: PalmRating(
+                                                clarity: (genericJSON["rating"] as? [String: Any])?["clarity"] as? Int ?? 5,
+                                                spiritual_energy: (genericJSON["rating"] as? [String: Any])?["spiritual_energy"] as? Int ?? 5,
+                                                introspection: (genericJSON["rating"] as? [String: Any])?["introspection"] as? Int ?? 5
+                                            )
+                                        )
+                                        palmReading = manualReading
+                                        alertMessage = "Your palm has been read successfully!"
+                                        showAlert = true
+                                    } else {
+                                        // If all else fails, create a basic reading
+                                        print("=== CREATING FALLBACK READING ===")
+                                        let fallbackReading = PalmReading(
+                                            summary: "Your palm shows unique patterns that suggest a journey of self-discovery.",
+                                            lines: PalmLines(
+                                                life_line: "Your life line indicates vitality and strength.",
+                                                heart_line: "Your heart line suggests emotional depth.",
+                                                head_line: "Your head line shows clear thinking.",
+                                                fate_line: "Your fate line points to an interesting path ahead."
+                                            ),
+                                            advice: "Trust your instincts and remain open to new experiences.",
+                                            rating: PalmRating(clarity: 7, spiritual_energy: 7, introspection: 7)
+                                        )
+                                        palmReading = fallbackReading
+                                        alertMessage = "Palm reading completed with partial data"
+                                        showAlert = true
+                                    }
+                                }
+                            }
+                        } else if let error = json["error"] as? String {
+                            alertMessage = "Reading failed: \(error)"
+                            showAlert = true
                         }
-                    } else if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                              let error = json["error"] as? String {
-                        alertMessage = "Reading failed: \(error)"
-                        showAlert = true
-                    } else {
-                        alertMessage = "The spirits are unclear today. Please try again."
-                        showAlert = true
                     }
                 } catch {
-                    alertMessage = "Unable to interpret the reading: \(error.localizedDescription)"
+                    print("=== COMPLETE FAILURE ===")
+                    print("Error: \(error)")
+                    alertMessage = "Unable to process the response"
                     showAlert = true
                 }
             }
@@ -433,375 +654,387 @@ struct CameraPermissionHelper {
 
 struct AncientTomeView: View {
     let palmReading: PalmReading
-    @State private var showTitle = false
-    @State private var showOrnaments = false
-    @State private var showSummary = false
-    @State private var showLines = false
-    @State private var showAdvice = false
-    @State private var showRating = false
+    @State private var showContent = false
+    @State private var cardOffset: [CGFloat] = [50, 60, 70, 80]
+    @State private var cardOpacity: [Double] = [0, 0, 0, 0]
     
-    // Vibe-based theming
-    private var vibeTheme: VibeTheme {
-        VibeTheme(for: palmReading.vibe)
+    // Premium mystical theme
+    private let primaryGold = Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13)
+    private let deepPurple = Color(.sRGB, red: 0.15, green: 0.05, blue: 0.35)
+    private let mysticalBlue = Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45)
+    private let softCream = Color(.sRGB, red: 0.98, green: 0.96, blue: 0.94)
+    private let shadowColor = Color.black.opacity(0.15)
+    
+    private var cardGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color.white.opacity(0.95),
+                Color(.sRGB, red: 0.97, green: 0.94, blue: 0.92),
+                Color(.sRGB, red: 0.94, green: 0.91, blue: 0.87)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
     
     var body: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
-                // Tome Header with Vibe-Based Theming
-                VStack(spacing: 16) {
-                    // Top Ornamental Border
-                    if showOrnaments {
-                        HStack {
-                            Image(systemName: vibeTheme.ornamentIcon)
-                                .foregroundColor(vibeTheme.accentColor.opacity(0.8))
-                                .font(.title2)
-                            
-                            Spacer()
-                            
-                            Image(systemName: vibeTheme.centerIcon)
-                                .foregroundColor(vibeTheme.accentColor.opacity(0.8))
-                                .font(.title2)
-                                .scaleEffect(1.2)
-                            
-                            Spacer()
-                            
-                            Image(systemName: vibeTheme.ornamentIcon)
-                                .foregroundColor(vibeTheme.accentColor.opacity(0.8))
-                                .font(.title2)
-                        }
-                        .opacity(showOrnaments ? 1 : 0)
-                        .animation(.easeIn(duration: 0.8).delay(0.3), value: showOrnaments)
+                // Mystical Header
+                VStack(spacing: 24) {
+                    // Celestial ornament
+                    HStack(spacing: 12) {
+                        Circle()
+                            .fill(primaryGold.opacity(0.3))
+                            .frame(width: 8, height: 8)
+                            .shadow(color: primaryGold, radius: 4)
+                        
+                        Image(systemName: "moon.stars.fill")
+                            .font(.title)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [primaryGold, mysticalBlue],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .shadow(color: primaryGold.opacity(0.5), radius: 6)
+                        
+                        Circle()
+                            .fill(primaryGold.opacity(0.3))
+                            .frame(width: 8, height: 8)
+                            .shadow(color: primaryGold, radius: 4)
                     }
                     
                     // Title
-                    if showTitle {
-                        HStack {
-                            Image(systemName: vibeTheme.titleIcon)
-                                .foregroundColor(vibeTheme.accentColor.opacity(0.9))
-                                .font(.title3)
-                            
-                            Text("Palm Reading Analysis")
-                                .font(.custom("Georgia", size: 22))
-                                .fontWeight(.medium)
-                                .foregroundColor(vibeTheme.accentColor.opacity(0.9))
-                                .shadow(color: Color.black.opacity(0.5), radius: 2, x: 0, y: 1)
-                            
-                            Image(systemName: vibeTheme.titleIcon)
-                                .foregroundColor(vibeTheme.accentColor.opacity(0.9))
-                                .font(.title3)
-                        }
-                        .opacity(showTitle ? 1 : 0)
-                        .animation(.easeIn(duration: 0.8).delay(0.1), value: showTitle)
+                    VStack(spacing: 8) {
+                        Text("PALM READING")
+                            .font(.custom("Avenir Next", size: 13))
+                            .fontWeight(.medium)
+                            .tracking(3)
+                            .foregroundColor(mysticalBlue.opacity(0.8))
+                        
+                        Text("Mystical Insights")
+                            .font(.custom("Playfair Display", size: 28))
+                            .fontWeight(.light)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [deepPurple, mysticalBlue],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
                     }
                 }
-                .padding(.top, 20)
-                .padding(.bottom, 16)
+                .padding(.top, 30)
+                .padding(.bottom, 40)
+                .opacity(showContent ? 1 : 0)
+                .offset(y: showContent ? 0 : -30)
+                .animation(.easeOut(duration: 1.0).delay(0.2), value: showContent)
                 
-                // Summary Section
-                if showSummary {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Image(systemName: "sparkles")
-                                .foregroundColor(vibeTheme.accentColor)
-                            Text("Overview")
-                                .font(.custom("Georgia", size: 18))
-                                .fontWeight(.semibold)
-                                .foregroundColor(vibeTheme.accentColor)
-                        }
-                        
+                // Summary Card
+                MysticalCard(
+                    title: "Soul Overview",
+                    icon: "sparkles",
+                    content: {
                         Text(palmReading.summary)
                             .font(.custom("Georgia", size: 16))
-                            .foregroundColor(vibeTheme.textColor)
-                            .lineSpacing(6)
-                    }
-                    .padding(20)
-                    .background(vibeTheme.cardBackground)
-                    .opacity(showSummary ? 1 : 0)
-                    .animation(.easeIn(duration: 0.8).delay(0.5), value: showSummary)
-                }
+                            .lineHeight(1.6)
+                            .foregroundColor(deepPurple.opacity(0.85))
+                            .multilineTextAlignment(.leading)
+                    },
+                    index: 0,
+                    cardOffset: cardOffset,
+                    cardOpacity: cardOpacity
+                )
                 
-                // Lines Section
-                if showLines {
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Image(systemName: "hand.draw")
-                                .foregroundColor(vibeTheme.accentColor)
-                            Text("The Lines Speak")
-                                .font(.custom("Georgia", size: 18))
-                                .fontWeight(.semibold)
-                                .foregroundColor(vibeTheme.accentColor)
+                // Lines Card
+                MysticalCard(
+                    title: "Sacred Lines",
+                    icon: "hand.draw",
+                    content: {
+                        VStack(spacing: 20) {
+                            PalmLineView(title: "Life Line", description: palmReading.lines.life_line, symbol: "heart.circle")
+                            PalmLineView(title: "Heart Line", description: palmReading.lines.heart_line, symbol: "heart.fill")
+                            PalmLineView(title: "Head Line", description: palmReading.lines.head_line, symbol: "brain.head.profile")
+                            PalmLineView(title: "Fate Line", description: palmReading.lines.fate_line, symbol: "star.circle.fill")
                         }
-                        
-                        LineItemView(title: "Life Line", description: palmReading.lines.life_line, theme: vibeTheme)
-                        LineItemView(title: "Heart Line", description: palmReading.lines.heart_line, theme: vibeTheme)
-                        LineItemView(title: "Head Line", description: palmReading.lines.head_line, theme: vibeTheme)
-                        LineItemView(title: "Fate Line", description: palmReading.lines.fate_line, theme: vibeTheme)
-                    }
-                    .padding(20)
-                    .background(vibeTheme.cardBackground)
-                    .opacity(showLines ? 1 : 0)
-                    .animation(.easeIn(duration: 0.8).delay(0.7), value: showLines)
-                }
+                    },
+                    index: 1,
+                    cardOffset: cardOffset,
+                    cardOpacity: cardOpacity
+                )
                 
-                // Advice Section
-                if showAdvice {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Image(systemName: "lightbulb.fill")
-                                .foregroundColor(vibeTheme.accentColor)
-                            Text("Guidance")
-                                .font(.custom("Georgia", size: 18))
-                                .fontWeight(.semibold)
-                                .foregroundColor(vibeTheme.accentColor)
-                        }
-                        
+                // Advice Card
+                MysticalCard(
+                    title: "Divine Guidance",
+                    icon: "lightbulb.max.fill",
+                    content: {
                         Text(palmReading.advice)
                             .font(.custom("Georgia", size: 16))
-                            .italic()
-                            .foregroundColor(vibeTheme.textColor)
-                            .lineSpacing(6)
-                    }
-                    .padding(20)
-                    .background(vibeTheme.cardBackground)
-                    .opacity(showAdvice ? 1 : 0)
-                    .animation(.easeIn(duration: 0.8).delay(0.9), value: showAdvice)
-                }
+                            .fontStyle(.italic)
+                            .lineHeight(1.7)
+                            .foregroundColor(deepPurple.opacity(0.8))
+                            .multilineTextAlignment(.leading)
+                    },
+                    index: 2,
+                    cardOffset: cardOffset,
+                    cardOpacity: cardOpacity
+                )
                 
-                // Rating Section
-                if showRating {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Image(systemName: "chart.bar.fill")
-                                .foregroundColor(vibeTheme.accentColor)
-                            Text("Energy Reading")
-                                .font(.custom("Georgia", size: 18))
-                                .fontWeight(.semibold)
-                                .foregroundColor(vibeTheme.accentColor)
+                // Energy Rating Card
+                MysticalCard(
+                    title: "Spiritual Resonance",
+                    icon: "waveform.path.ecg",
+                    content: {
+                        VStack(spacing: 24) {
+                            SpiritualMeter(label: "Clarity", value: palmReading.rating.clarity, color: primaryGold)
+                            SpiritualMeter(label: "Spiritual Energy", value: palmReading.rating.spiritual_energy, color: mysticalBlue)
+                            SpiritualMeter(label: "Introspection", value: palmReading.rating.introspection, color: deepPurple)
                         }
-                        
-                        HStack {
-                            RatingBar(label: "Clarity", value: palmReading.rating.clarity, theme: vibeTheme)
-                            Spacer()
-                            RatingBar(label: "Spiritual Energy", value: palmReading.rating.spiritual_energy, theme: vibeTheme)
-                            Spacer()
-                            RatingBar(label: "Introspection", value: palmReading.rating.introspection, theme: vibeTheme)
-                        }
-                    }
-                    .padding(20)
-                    .background(vibeTheme.cardBackground)
-                    .opacity(showRating ? 1 : 0)
-                    .animation(.easeIn(duration: 0.8).delay(1.1), value: showRating)
-                }
+                    },
+                    index: 3,
+                    cardOffset: cardOffset,
+                    cardOpacity: cardOpacity
+                )
                 
-                // Bottom Ornamental Border
-                if showOrnaments {
-                    HStack {
-                        Image(systemName: vibeTheme.bottomIcon)
-                            .foregroundColor(vibeTheme.accentColor.opacity(0.8))
-                            .font(.caption)
-                        
-                        Spacer()
-                        
-                        Text(vibeTheme.bottomText)
-                            .foregroundColor(vibeTheme.accentColor.opacity(0.7))
-                            .font(.caption)
-                        
-                        Spacer()
-                        
-                        Image(systemName: vibeTheme.bottomIcon)
-                            .foregroundColor(vibeTheme.accentColor.opacity(0.8))
-                            .font(.caption)
+                // Mystical Footer
+                VStack(spacing: 16) {
+                    HStack(spacing: 8) {
+                        ForEach(0..<3, id: \.self) { index in
+                            Circle()
+                                .fill(primaryGold.opacity(0.4))
+                                .frame(width: 4, height: 4)
+                                .scaleEffect(showContent ? 1.0 : 0.5)
+                                .animation(.easeOut(duration: 0.6).delay(Double(index) * 0.1 + 1.5), value: showContent)
+                        }
                     }
-                    .padding(.top, 20)
-                    .opacity(showOrnaments ? 1 : 0)
-                    .animation(.easeIn(duration: 0.8).delay(1.3), value: showOrnaments)
+                    
+                    Text("May wisdom guide your path")
+                        .font(.custom("Avenir Next", size: 11))
+                        .tracking(2)
+                        .foregroundColor(mysticalBlue.opacity(0.6))
+                        .opacity(showContent ? 0.7 : 0)
+                        .animation(.easeOut(duration: 0.8).delay(2.0), value: showContent)
                 }
+                .padding(.top, 40)
+                .padding(.bottom, 30)
             }
             .padding(.horizontal, 4)
         }
+        .background(
+            LinearGradient(
+                colors: [
+                    Color.clear,
+                    mysticalBlue.opacity(0.03),
+                    Color.clear
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
         .onAppear {
-            startTomeAnimation()
+            startElegantAnimation()
         }
     }
     
-    private func startTomeAnimation() {
-        withAnimation(.easeIn(duration: 0.5)) {
-            showTitle = true
+    private func startElegantAnimation() {
+        withAnimation(.easeOut(duration: 1.0).delay(0.3)) {
+            showContent = true
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(.easeIn(duration: 0.8)) {
-                showOrnaments = true
-            }
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            withAnimation(.easeIn(duration: 0.8)) {
-                showSummary = true
-            }
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-            withAnimation(.easeIn(duration: 0.8)) {
-                showLines = true
-            }
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            withAnimation(.easeIn(duration: 0.8)) {
-                showAdvice = true
-            }
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-            withAnimation(.easeIn(duration: 0.8)) {
-                showRating = true
-            }
-        }
-    }
-}
-
-struct LineItemView: View {
-    let title: String
-    let description: String
-    let theme: VibeTheme
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("• \(title)")
-                .font(.custom("Georgia", size: 14))
-                .fontWeight(.medium)
-                .foregroundColor(theme.accentColor.opacity(0.8))
-            
-            Text(description)
-                .font(.custom("Georgia", size: 14))
-                .foregroundColor(theme.textColor.opacity(0.9))
-                .lineSpacing(3)
-        }
-    }
-}
-
-struct RatingBar: View {
-    let label: String
-    let value: Int
-    let theme: VibeTheme
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(label)
-                .font(.custom("Georgia", size: 12))
-                .foregroundColor(theme.accentColor.opacity(0.8))
-                .multilineTextAlignment(.center)
-            
-            HStack(spacing: 2) {
-                ForEach(1...10, id: \.self) { index in
-                    Circle()
-                        .fill(index <= value ? theme.accentColor.opacity(0.8) : theme.accentColor.opacity(0.2))
-                        .frame(width: 6, height: 6)
+        // Stagger card animations
+        for i in 0..<4 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.15 + 0.8) {
+                withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+                    cardOffset[i] = 0
+                    cardOpacity[i] = 1
                 }
             }
-            
-            Text("\(value)/10")
-                .font(.custom("Georgia", size: 10))
-                .foregroundColor(theme.textColor.opacity(0.7))
         }
     }
 }
 
-// MARK: - Vibe Theming System
-struct VibeTheme {
-    let accentColor: Color
-    let textColor: Color
-    let cardBackground: AnyShapeStyle
-    let titleIcon: String
-    let centerIcon: String
-    let ornamentIcon: String
-    let bottomIcon: String
-    let bottomText: String
+// MARK: - Premium UI Components
+
+struct MysticalCard<Content: View>: View {
+    let title: String
+    let icon: String
+    @ViewBuilder let content: Content
+    let index: Int
+    let cardOffset: [CGFloat]
+    let cardOpacity: [Double]
     
-    init(for vibe: String) {
-        switch vibe.lowercased() {
-        case "mystical":
-            accentColor = Color.purple.opacity(0.9)
-            textColor = Color(.sRGB, red: 0.4, green: 0.3, blue: 0.5)
-            cardBackground = AnyShapeStyle(LinearGradient(
-                colors: [Color(.sRGB, red: 0.98, green: 0.95, blue: 0.98), Color(.sRGB, red: 0.94, green: 0.90, blue: 0.96)],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            ))
-            titleIcon = "sparkles"
-            centerIcon = "eye"
-            ornamentIcon = "sparkles"
-            bottomIcon = "sparkles"
-            bottomText = "✦ ✦ ✦"
+    private let primaryGold = Color(.sRGB, red: 0.85, green: 0.65, blue: 0.13)
+    private let mysticalBlue = Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45)
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            // Card Header
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [primaryGold, mysticalBlue],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(color: primaryGold.opacity(0.3), radius: 4)
+                
+                Text(title)
+                    .font(.custom("Playfair Display", size: 20))
+                    .fontWeight(.medium)
+                    .foregroundColor(mysticalBlue)
+                
+                Spacer()
+                
+                // Decorative element
+                Circle()
+                    .fill(primaryGold.opacity(0.2))
+                    .frame(width: 8, height: 8)
+                    .shadow(color: primaryGold, radius: 2)
+            }
             
-        case "ethereal":
-            accentColor = Color.cyan.opacity(0.8)
-            textColor = Color(.sRGB, red: 0.3, green: 0.4, blue: 0.5)
-            cardBackground = AnyShapeStyle(LinearGradient(
-                colors: [Color(.sRGB, red: 0.95, green: 0.98, blue: 1.0), Color(.sRGB, red: 0.90, green: 0.95, blue: 0.98)],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            ))
-            titleIcon = "cloud"
-            centerIcon = "moon.stars"
-            ornamentIcon = "cloud"
-            bottomIcon = "wind"
-            bottomText = "～ ～ ～"
+            // Card Content
+            content
+        }
+        .padding(24)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white,
+                            Color(.sRGB, red: 0.98, green: 0.97, blue: 0.95),
+                            Color(.sRGB, red: 0.96, green: 0.94, blue: 0.91)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(
+                    color: Color.black.opacity(0.08),
+                    radius: 20,
+                    x: 0,
+                    y: 8
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    primaryGold.opacity(0.1),
+                                    mysticalBlue.opacity(0.1)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+        )
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
+        .offset(y: cardOffset[index])
+        .opacity(cardOpacity[index])
+    }
+}
+
+struct PalmLineView: View {
+    let title: String
+    let description: String
+    let symbol: String
+    
+    private let mysticalBlue = Color(.sRGB, red: 0.12, green: 0.25, blue: 0.45)
+    private let deepPurple = Color(.sRGB, red: 0.15, green: 0.05, blue: 0.35)
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            // Symbol
+            Image(systemName: symbol)
+                .font(.title3)
+                .foregroundColor(mysticalBlue.opacity(0.7))
+                .frame(width: 24)
             
-        case "cosmic":
-            accentColor = Color.indigo.opacity(0.9)
-            textColor = Color(.sRGB, red: 0.3, green: 0.3, blue: 0.4)
-            cardBackground = AnyShapeStyle(LinearGradient(
-                colors: [Color(.sRGB, red: 0.94, green: 0.94, blue: 0.98), Color(.sRGB, red: 0.88, green: 0.88, blue: 0.96)],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            ))
-            titleIcon = "star.fill"
-            centerIcon = "moon.stars.fill"
-            ornamentIcon = "star"
-            bottomIcon = "star.fill"
-            bottomText = "★ ★ ★"
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.custom("Avenir Next", size: 14))
+                    .fontWeight(.semibold)
+                    .foregroundColor(mysticalBlue)
+                    .tracking(0.5)
+                
+                Text(description)
+                    .font(.custom("Georgia", size: 15))
+                    .lineHeight(1.5)
+                    .foregroundColor(deepPurple.opacity(0.8))
+            }
             
-        case "uplifting":
-            accentColor = Color.orange.opacity(0.9)
-            textColor = Color(.sRGB, red: 0.5, green: 0.3, blue: 0.2)
-            cardBackground = AnyShapeStyle(LinearGradient(
-                colors: [Color(.sRGB, red: 1.0, green: 0.98, blue: 0.92), Color(.sRGB, red: 0.98, green: 0.94, blue: 0.88)],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            ))
-            titleIcon = "sun.max.fill"
-            centerIcon = "flame.fill"
-            ornamentIcon = "sun.max"
-            bottomIcon = "flame"
-            bottomText = "☀ ☀ ☀"
-            
-        case "shadow":
-            accentColor = Color.blue.opacity(0.8)
-            textColor = Color(.sRGB, red: 0.2, green: 0.3, blue: 0.4)
-            cardBackground = AnyShapeStyle(LinearGradient(
-                colors: [Color(.sRGB, red: 0.92, green: 0.94, blue: 0.98), Color(.sRGB, red: 0.88, green: 0.90, blue: 0.96)],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            ))
-            titleIcon = "moon.fill"
-            centerIcon = "eye.trianglebadge.exclamationmark"
-            ornamentIcon = "moon"
-            bottomIcon = "moon.phase.waxing.crescent"
-            bottomText = "◐ ◑ ◒"
-            
-        default: // fallback to mystical
-            accentColor = Color.purple.opacity(0.9)
-            textColor = Color(.sRGB, red: 0.4, green: 0.3, blue: 0.5)
-            cardBackground = AnyShapeStyle(LinearGradient(
-                colors: [Color(.sRGB, red: 0.98, green: 0.95, blue: 0.98), Color(.sRGB, red: 0.94, green: 0.90, blue: 0.96)],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            ))
-            titleIcon = "sparkles"
-            centerIcon = "eye"
-            ornamentIcon = "sparkles"
-            bottomIcon = "sparkles"
-            bottomText = "✦ ✦ ✦"
+            Spacer()
         }
     }
 }
+
+struct SpiritualMeter: View {
+    let label: String
+    let value: Int
+    let color: Color
+    @State private var animatedValue: Double = 0
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text(label)
+                    .font(.custom("Avenir Next", size: 14))
+                    .fontWeight(.medium)
+                    .foregroundColor(color.opacity(0.8))
+                
+                Spacer()
+                
+                Text("\(value)")
+                    .font(.custom("Avenir Next", size: 16))
+                    .fontWeight(.bold)
+                    .foregroundColor(color)
+            }
+            
+            // Elegant progress bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(color.opacity(0.1))
+                        .frame(height: 6)
+                    
+                    // Progress
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    color.opacity(0.8),
+                                    color
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(
+                            width: geometry.size.width * (animatedValue / 10),
+                            height: 6
+                        )
+                        .shadow(color: color.opacity(0.3), radius: 3)
+                }
+            }
+            .frame(height: 6)
+            .onAppear {
+                withAnimation(.easeOut(duration: 1.5).delay(0.5)) {
+                    animatedValue = Double(value)
+                }
+            }
+        }
+    }
+}
+
 
 #Preview {
     CameraView()
