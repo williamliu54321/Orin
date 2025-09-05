@@ -345,23 +345,22 @@ struct CameraView: View {
             .onAppear {
                 hasAnimated = true
             }
-            .fullScreenCover(isPresented: .constant(analysisState == .loading)) {
-                MysticalLoadingView(
-                    capturedImage: capturedImage,
-                    palmAnalysisPrompt: palmAnalysisPrompt,
-                    onComplete: { reading in
-                        palmReading = reading
-                        analysisState = .completed
-                    },
-                    onError: { errorMessage in
-                        alertMessage = errorMessage
-                        showAlert = true
-                        analysisState = .idle
-                    }
-                )
-            }
-            .fullScreenCover(isPresented: .constant(analysisState == .completed), content: {
-                if let reading = palmReading {
+            .fullScreenCover(isPresented: .constant(analysisState != .idle), content: {
+                if analysisState == .loading {
+                    MysticalLoadingView(
+                        capturedImage: capturedImage,
+                        palmAnalysisPrompt: palmAnalysisPrompt,
+                        onComplete: { reading in
+                            palmReading = reading
+                            analysisState = .completed
+                        },
+                        onError: { errorMessage in
+                            alertMessage = errorMessage
+                            showAlert = true
+                            analysisState = .idle
+                        }
+                    )
+                } else if analysisState == .completed, let reading = palmReading {
                     AncientTomeView(palmReading: reading) {
                         analysisState = .idle
                         palmReading = nil
