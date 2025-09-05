@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  Orin
-//
-//  Created by William Liu on 2025-09-03.
-//
-
 import SwiftUI
 import CoreData
 
@@ -15,6 +8,9 @@ struct ContentView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
         animation: .default)
     private var items: FetchedResults<Item>
+    
+    // Add this AppStorage property to track onboarding state
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     var body: some View {
         NavigationView {
@@ -39,6 +35,14 @@ struct ContentView: View {
                         Label("Add Item", systemImage: "plus")
                     }
                 }
+                
+                // New ToolbarItem for Reset Onboarding
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Reset Onboarding") {
+                        hasCompletedOnboarding = false
+                    }
+                    .foregroundColor(.red) // make it stand out
+                }
             }
             Text("Select an item")
         }
@@ -52,8 +56,6 @@ struct ContentView: View {
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
@@ -67,8 +69,6 @@ struct ContentView: View {
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }

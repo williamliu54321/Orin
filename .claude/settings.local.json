@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodebuild:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(swift build:*)",
+      "Read(/var/folders/53/h95nnrdd4vz5r_jbqywkn5cw0000gn/T/TemporaryItems/NSIRD_screencaptureui_MB89jM/**)",
+      "Bash(swift:*)",
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Read(/Users/williamliu/Projects/OrinBackend/functions/**)",
+      "Read(/Users/williamliu/Projects/OrinBackend/functions/**)",
+      "Bash(node:*)",
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Bash(chmod:*)",
+      "Bash(./test_api_response.sh:*)",
+      "Bash(cat:*)",
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Read(/Users/williamliu/Projects/OrinBackend/**)",
+      "Bash(grep:*)",
+      "Bash(firebase functions:log:*)",
+      "Read(/Users/williamliu/Downloads/**)",
+      "Read(/Users/williamliu/Downloads/**)",
+      "Read(/Users/williamliu/Downloads/**)",
+      "Read(/Users/williamliu/Downloads/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
